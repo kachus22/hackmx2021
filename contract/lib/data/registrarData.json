@@ -1,0 +1,21 @@
+{
+    "registrars": [
+        {
+            "address": "Av. Luis Elizondo 13.",
+            "name": "Casilla HackMx",
+            "district": 1,
+            "locality": "Monterrey",
+            "state": "Nuevo León",
+            "country": "México"
+        },
+        {
+            "address": "Garza Sada",
+            "name": "Parque Tecnologico",
+            "district": 1,
+            "locality": "Monterrey",
+            "state": "Nuevo León",
+            "country": "México"
+        }
+    ]
+}
+
