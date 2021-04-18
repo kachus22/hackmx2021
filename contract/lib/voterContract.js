@@ -9,21 +9,32 @@ const { Contract } = require('fabric-contract-api');
 const path = require('path');
 const fs = require('fs');
 
-// connect to the election data file
-const electionDataPath = path.join(process.cwd(), './lib/data/electionData.json');
-const electionDataJson = fs.readFileSync(electionDataPath, 'utf8');
-const electionData = JSON.parse(electionDataJson);
-
-// connect to the ballot data file
-const ballotDataPath = path.join(process.cwd(), './lib/data/ballotData.json');
-const ballotDataJson = fs.readFileSync(ballotDataPath, 'utf8');
-const ballotData = JSON.parse(ballotDataJson);
-
 //import our file which contains our constructors and auxiliary function
-let Ballot = require('./Ballot.js');
-let Election = require('./Election.js');
-let Voter = require('./Voter.js');
-let VotableItem = require('./VotableItem.js');
+let Ballot = require('./models/Ballot.js');
+let Election = require('./models/Election.js');
+let Voter = require('./models/Voter.js');
+let VotableItem = require('./models/VotableItem.js');
+
+/**
+   *
+   * loadJsonData
+   *
+   * This function helps load JSON data from disk and parse it into an object
+   *
+   * @param filepath - the filepath where the data is
+   * @returns the object containing that data
+   */
+function loadJsonData(filepath) {
+    const dataPath = path.join(process.cwd(), filepath);
+    const dataJson = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(dataJson);
+}
+
+
+// connect to the data files
+const electionData = loadJsonData('./lib/data/electionData.json');
+const ballotData = loadJsonData('./lib/data/ballotData.json');
+const centerData = loadJsonData('./lib/data/centerData.json');
 
 class MyAssetContract extends Contract {
 
@@ -38,9 +49,6 @@ class MyAssetContract extends Contract {
    * @returns the voters which are registered and ready to vote in the election
    */
   async init(ctx) {
-
-    console.log('instantiate was called!');
-
     let voters = [];
     let elections = [];
     let election;
