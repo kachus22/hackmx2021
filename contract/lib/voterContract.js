@@ -12,8 +12,9 @@ const fs = require('fs');
 //import our file which contains our constructors and auxiliary function
 let Ballot = require('./models/Ballot.js');
 let Election = require('./models/Election.js');
-let Voter = require('./models/Voter.js');
+let Registrar = require('./models/Registrar.js');
 let VotableItem = require('./models/VotableItem.js');
+let Voter = require('./models/Voter.js');
 
 /**
    *
@@ -34,7 +35,7 @@ function loadJsonData(filepath) {
 // connect to the data files
 const electionData = loadJsonData('./lib/data/electionData.json');
 const ballotData = loadJsonData('./lib/data/ballotData.json');
-const centerData = loadJsonData('./lib/data/centerData.json');
+const registrarData = loadJsonData('./lib/data/registrarData.json');
 
 class MyAssetContract extends Contract {
 
@@ -49,9 +50,11 @@ class MyAssetContract extends Contract {
    * @returns the voters which are registered and ready to vote in the election
    */
   async init(ctx) {
+    // Initialize election
+    let election = await this.getOrGenerateElection(ctx);
+    let registrars = await this.generateRegistrars(ctx);
     let voters = [];
-    let elections = [];
-    let election;
+
 
     //create voters
     let voter1 = await new Voter('V1', '234', 'Horea', 'Porutiu');
@@ -65,30 +68,6 @@ class MyAssetContract extends Contract {
     await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
     await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
 
-    //query for election first before creating one.
-    let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
-
-    if (currElections.length === 0) {
-
-      // TODO: Improve Date handling. Maybe using Luxon.
-      let electionDate = electionData.date;
-      let electionStartDate = await new Date(electionDate.start.year, electionDate.start.month,
-        electionDate.start.day, electionDate.start.hour, electionDate.start.minute);
-      let electionEndDate = await new Date(electionDate.end.year, electionDate.end.month,
-        electionDate.end.day, electionDate.end.hour, electionDate.end.minute);
-
-      //create the election
-      election = await new Election(electionData.name, electionData.country,
-        electionDate.start.year, electionStartDate, electionEndDate);
-
-      //update elections array
-      elections.push(election);
-
-      await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
-    } else {
-      election = currElections[0];
-    }
-
     let votableItems = await this.generateVotableItems(ctx, ballotData);
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
@@ -100,8 +79,68 @@ class MyAssetContract extends Contract {
         break;
       }
     }
-
     return voters;
+  }
+
+  /**
+   *
+   * getOrGenerateElection
+   *
+   * Gets or creates the Election to be used for this
+   *
+   * @param ctx - the context of the transaction
+   * @returns - The election that we are trying to use
+   */
+   async getOrGenerateElection (ctx) {
+    //query for election first before creating one.
+    let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
+    let election;
+
+    if (currElections.length === 0) {
+      // TODO: Improve Date handling. Maybe using Luxon.
+      let electionDate = electionData.date;
+      let electionStartDate = await new Date(electionDate.start.year, electionDate.start.month,
+      electionDate.start.day, electionDate.start.hour, electionDate.start.minute);
+      let electionEndDate = await new Date(electionDate.end.year, electionDate.end.month,
+      electionDate.end.day, electionDate.end.hour, electionDate.end.minute);
+
+      //create the election
+      election = await new Election(electionData.name, electionData.country,
+      electionDate.start.year, electionStartDate, electionEndDate);
+
+      //update elections array
+      elections.push(election);
+
+      await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
+    } else {
+      election = currElections[0];
+    }
+    return election;
+  }
+
+  /**
+   *
+   * generateRegistrars
+   *
+   * Generates the registrars which are where people is assigned to vote on.
+   *
+   * @param ctx - the context of the transaction
+   * @returns - The registrars for the election
+   */
+  async generateRegistrars (ctx) {
+    //create registrars
+    let registrars = await Promise.all(
+      //populate registrars array so that the voters can be in one of them
+      registrarData.map((x, i) => new Registrar(
+        i, x.country, x.state, x.locality, x.district, x.name, x.address
+      ))
+    );
+
+    await Promise.all(registrars.map((x) => {
+      //save votable choices in world state
+      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+    }));
+    return registrars;
   }
 
   /**
@@ -113,19 +152,19 @@ class MyAssetContract extends Contract {
    * @param ctx - the context of the transaction
    * @returns - The different political parties and candidates you can vote for, which are on the ballot.
    */
-   async generateVotableItems(ctx) {
-       //create votableItems for the ballots
-       let votableItems = await Promise.all(
-            //populate choices array so that the ballots can have all of these choices
-            ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
-       );
+  async generateVotableItems(ctx) {
+    //create votableItems for the ballots
+    let votableItems = await Promise.all(
+        //populate choices array so that the ballots can have all of these choices
+        ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
+    );
 
-        await Promise.all(votableItems.map((i) => {
-            //save votable choices in world state
-            ctx.stub.putState(i.votableId, Buffer.from(JSON.stringify(i)));
-        }))
-        return votableItems;
-   }
+    await Promise.all(votableItems.map((x) => {
+        //save votable choices in world state
+        ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+    }));
+    return votableItems;
+  }
 
   /**
    *
