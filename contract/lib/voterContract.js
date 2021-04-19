@@ -207,7 +207,7 @@ class MyContract extends Contract {
     args = JSON.parse(args);
 
     //create a new voter
-    let newVoter = await new Voter(args.voterId, args.registrarId, args.firstName, args.lastName);
+    let newVoter = await new Voter(ctx, args.voterId, args.registrarId, args.firstName, args.lastName);
 
     //update state with new voter
     await ctx.stub.putState(newVoter.voterId, Buffer.from(JSON.stringify(newVoter)));
@@ -216,8 +216,7 @@ class MyContract extends Contract {
     let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
 
     if (currElections.length === 0) {
-      let response = {};
-      response.error = 'no elections. Run the init() function first.';
+      let response = { error: 'no elections. Run the init() function first.' };
       return response;
     }
 
@@ -229,7 +228,7 @@ class MyContract extends Contract {
     //generate ballot with the given votableItems
     await this.generateBallot(ctx, votableItems, currElection, newVoter);
 
-    let response = `voter with voterId ${newVoter.voterId} is updated in the world state`;
+    let response = { message: `voter with voterId ${newVoter.voterId} is updated in the world state` };
     return response;
   }
 
@@ -322,13 +321,12 @@ class MyContract extends Contract {
       let voter = await JSON.parse(voterAsBytes);
 
       if (voter.ballotCast) {
-        let response = {};
-        response.error = 'this voter has already cast this ballot!';
+        let response = { error: 'This voter has already cast this ballot.' };
         return response;
       }
 
       //check the date of the election, to make sure the election is still open
-      let currentTime = await new Date(2020, 11, 3);
+      let currentTime = await new Date();
 
       //parse date objects
       let parsedCurrentTime = await Date.parse(currentTime);
@@ -340,8 +338,7 @@ class MyContract extends Contract {
 
         let votableExists = await this.myAssetExists(ctx, votableId);
         if (!votableExists) {
-          let response = {};
-          response.error = 'VotableId does not exist!';
+          let response = { error: 'VotableId does not exist.' };
           return response;
         }
 
@@ -353,8 +350,7 @@ class MyContract extends Contract {
         await votable.count++;
 
         //update the state with the new vote count
-        let result = await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
-        console.log(result);
+        await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
 
         //make sure this voter cannot vote again!
         voter.ballotCast = true;
@@ -362,19 +358,16 @@ class MyContract extends Contract {
         voter.picked = args.picked;
 
         //update state to say that this voter has voted, and who they picked
-        let response = await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
-        console.log(response);
+        await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
         return voter;
 
       } else {
-        let response = {};
-        response.error = 'the election is not open now!';
+        let response = { error: `The election is not open now. It opens at ${electionStart}.` };
         return response;
       }
 
     } else {
-      let response = {};
-      response.error = 'the election or the voter does not exist!';
+      let response = { error: 'The election does not exist.' };
       return response;
     }
   }
