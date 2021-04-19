@@ -1,9 +1,9 @@
 'use strict';
 
-class Center {
+class Registrar {
   /**
    *
-   * Voter
+   * Registrar
    *
    * Constructor for a Voter object. Voter has a voterId and registrar that the
    * voter is .
@@ -32,4 +32,4 @@ class Center {
     return this;
   }
 }
-module.exports = Center;
+module.exports = Registrar;
