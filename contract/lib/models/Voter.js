@@ -17,7 +17,7 @@ class Voter {
    */
   constructor(ctx, voterId, registrarId, firstName, lastName) {
     if (this.validateVoter(voterId) && this.validateRegistrar(ctx, registrarId)) {
-      this.voterId = voterId;
+      this.voterId = `Voter:${voterId}`;
       this.registrarId = registrarId;
       this.firstName = firstName;
       this.lastName = lastName;

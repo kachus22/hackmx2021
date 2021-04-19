@@ -19,7 +19,7 @@ class Registrar {
    * @returns - registrar object
    */
   constructor(registrarId, country, state, locality, district, name, address) {
-    this.registrarId = `R${registrarId}`;
+    this.registrarId = `Registrar:${registrarId}`;
     this.country = country;
     this.state = state;
     this.locality = locality;

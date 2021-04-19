@@ -17,7 +17,7 @@ class VotableItem {
    */
   constructor(ctx, votableId, description) {
 
-    this.votableId = votableId;
+    this.votableId = `VotableId:${votableId}`;
     this.description = description;
     this.count = 0;
     this.type = 'votableItem';

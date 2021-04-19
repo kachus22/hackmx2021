@@ -136,7 +136,7 @@ class MyContract extends Contract {
 
     await Promise.all(registrars.map((x) => {
       //save votable choices in world state
-      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+      ctx.stub.putState(x.registrarId, Buffer.from(JSON.stringify(x)));
     }));
     return registrars;
   }
