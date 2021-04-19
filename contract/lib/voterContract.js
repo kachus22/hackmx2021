@@ -139,7 +139,7 @@ class MyContract extends Contract {
     //create votableItems for the ballots
     let votableItems = await Promise.all(
       //populate choices array so that the ballots can have all of these choices
-      ballotData.map((x) => new VotableItem(ctx, x.id, x.candidates))
+      ballotData.map((x, i) => new VotableItem(ctx, i, x.party, x.candidates))
     );
 
     await Promise.all(votableItems.map((x) => {

@@ -15,9 +15,10 @@ class VotableItem {
    * @param candidates - the candidates for this votableItem
    * @returns - registrar object
    */
-  constructor(ctx, votableId, candidates) {
+  constructor(ctx, votableId, party, candidates) {
 
     this.votableId = `VotableId:${votableId}`;
+    this.party = party;
     this.candidates = candidates;
     this.count = 0;
     this.type = 'votableItem';

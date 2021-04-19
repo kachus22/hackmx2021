@@ -172,7 +172,7 @@ describe('MyContract', () => {
   describe('#VotableItem', async () => {
 
     it('VotableItem object should be created successfully, with all correct properties', async () => {
-      let votableItem = new VotableItem(ctx, '1', 'president');
+      let votableItem = new VotableItem(ctx, '1', 'political', ['president']);
 
       votableItem.should.haveOwnProperty('votableId');
       votableItem.should.haveOwnProperty('description');
