@@ -1,12 +1,13 @@
 <template>
-  <div class="ballot-single-option">
+  <div class="ballot-single-option" v-bind:class="{ selected: selected.votableId == votableItem.votableId }" 
+    @click="onClick(votableItem)">
     <div class="image">
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Morena_logo_%28alt%29.svg/1200px-Morena_logo_%28alt%29.svg.png" 
-        v-bind:alt="`${name} Logo`">
+        v-bind:alt="`${votableItem.party} Logo`">
     </div>
     <div class="info">
-      <h2>{{name}}</h2>
-      <h4 v-for="(c, i) in candidates" v-bind:key="i">{{c}}</h4>
+      <h2>{{votableItem.party}}</h2>
+      <h4 v-for="(c, i) in votableItem.candidates" v-bind:key="i">{{c}}</h4>
     </div>
   </div>
 </template>
@@ -20,6 +21,11 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
+    cursor: pointer;
+  }
+
+  .ballot-single-option.selected {
+     background-color: royalblue;
   }
 
   .ballot-single-option .image img {
@@ -54,9 +60,17 @@
 
 export default {
   name: "ballot-option",
-  props: ['name', 'candidates'],
+  props: ['votableItem', 'selected'],
   methods: {
-    
+    onClick(votableItem) {
+      let selection;
+      if (this.selected.votableId == votableItem.votableId) {
+        selection = { votableId: null };  
+      } else {
+        selection = votableItem;
+      }
+      this.$emit('update:selected', selection)
+    }
   }
 };
 </script>

@@ -1,15 +1,15 @@
 <template>
-  <div class="ballot-options">
-    <!-- <ballot-option :name="'Partido Revolucionario institucional'"/> -->
-    
-    <ballot-option v-for="(o, i) in options" v-bind:key="i"
-      :name="o.id" :candidates="o.candidates" />
+  <div>
+    <div class="ballot-options">
+      <ballot-option v-for="(o, i) in options" v-bind:key="i" :votableItem="o" :selected.sync="selected" />
+    </div>
+    <button v-if="selected" @click="onClick">Votar</button>  
   </div>
 </template>
 
 <style scoped>
   .ballot-options {
-    margin: 3rem auto;
+    margin: 0 auto;
     padding: 1rem;
     border: 1px solid black;
     border-radius: 8px;
@@ -39,8 +39,15 @@ import BallotOption from "./BallotOption.vue";
 export default {
   name: "ballot",
   props: ['options'],
+  data() {
+    return {
+      selected: { votableId: null }
+    }
+  },
   methods: {
-    
+    onClick() {
+      this.$emit('vote', this.selected);
+    }
   },
   components: {
     BallotOption
