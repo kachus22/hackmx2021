@@ -60,18 +60,18 @@ describe('MyAssetContract', () => {
     });
   });
 
-//   describe('#createMyAsset', () => {
+  describe('#createMyAsset', () => {
 
-//     it('should create a my asset', async () => {
-//       await contract.createMyAsset(ctx, '1003', 'my asset 1003 value');
-//       ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"my asset 1003 value"}'));
-//     });
+    // it('should create a my asset', async () => {
+    //   await contract.createMyAsset(ctx, '1003', 'my asset 1003 value');
+    //   ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"my asset 1003 value"}'));
+    // });
 
-//     it('should throw an error for a my asset that already exists', async () => {
-//       await contract.createMyAsset(ctx, '1001', 'myvalue').should.be.rejectedWith(/The my asset 1001 already exists/);
-//     });
+    // it('should throw an error for a my asset that already exists', async () => {
+    //   await contract.createMyAsset(ctx, '1001', 'myvalue').should.be.rejectedWith(/The my asset 1001 already exists/);
+    // });
 
-//   });
+  });
 
   describe('#readMyAsset', () => {
 
@@ -85,18 +85,18 @@ describe('MyAssetContract', () => {
 
   });
 
-//   describe('#updateMyAsset', () => {
+  describe('#updateMyAsset', () => {
 
-//     // it('should update a my asset', async () => {
-//     //   await contract.updateMyAsset(ctx, '1001', 'my asset 1001 new value');
-//     //   ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('"my asset 1001 new value"'));
-//     // });
+    // it('should update a my asset', async () => {
+    //   await contract.updateMyAsset(ctx, '1001', 'my asset 1001 new value');
+    //   ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('"my asset 1001 new value"'));
+    // });
 
-//     // it('should throw an error for a my asset that does not exist', async () => {
-//     //   await contract.updateMyAsset(ctx, '1003', 'my asset 1003 new value').should.be.rejectedWith(/The my asset 1003 does not exist/);
-//     // });
+    // it('should throw an error for a my asset that does not exist', async () => {
+    //   await contract.updateMyAsset(ctx, '1003', 'my asset 1003 new value').should.be.rejectedWith(/The my asset 1003 does not exist/);
+    // });
 
-//   });
+  });
 
   describe('#deleteMyAsset', () => {
 
@@ -115,8 +115,8 @@ describe('MyAssetContract', () => {
 
     it('should return array of length 4', async () => {
       let result = await contract.init(ctx);
-    //   result.should.be.an('array');
-    //   result.should.have.lengthOf(4);
+      result.should.be.an('array');
+      result.should.have.lengthOf(4);
     });
 
   });

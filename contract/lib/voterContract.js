@@ -26,9 +26,9 @@ let Voter = require('./models/Voter.js');
    * @returns the object containing that data
    */
 function loadJsonData(filepath) {
-    const dataPath = path.join(process.cwd(), filepath);
-    const dataJson = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(dataJson);
+  const dataPath = path.join(process.cwd(), filepath);
+  const dataJson = fs.readFileSync(dataPath, 'utf8');
+  return JSON.parse(dataJson);
 }
 
 
@@ -90,7 +90,7 @@ class MyAssetContract extends Contract {
    * @param ctx - the context of the transaction
    * @returns - The election that we are trying to use
    */
-   async getOrGenerateElection (ctx) {
+  async getOrGenerateElection (ctx) {
     //query for election first before creating one.
     let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
     let election;
@@ -99,13 +99,13 @@ class MyAssetContract extends Contract {
       // TODO: Improve Date handling. Maybe using Luxon.
       let electionDate = electionData.date;
       let electionStartDate = await new Date(electionDate.start.year, electionDate.start.month,
-      electionDate.start.day, electionDate.start.hour, electionDate.start.minute);
+        electionDate.start.day, electionDate.start.hour, electionDate.start.minute);
       let electionEndDate = await new Date(electionDate.end.year, electionDate.end.month,
-      electionDate.end.day, electionDate.end.hour, electionDate.end.minute);
+        electionDate.end.day, electionDate.end.hour, electionDate.end.minute);
 
       //create the election
       election = await new Election(electionData.name, electionData.country,
-      electionDate.start.year, electionStartDate, electionEndDate);
+        electionDate.start.year, electionStartDate, electionEndDate);
 
       await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
     } else {
@@ -151,13 +151,13 @@ class MyAssetContract extends Contract {
   async generateVotableItems(ctx) {
     //create votableItems for the ballots
     let votableItems = await Promise.all(
-        //populate choices array so that the ballots can have all of these choices
-        ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
+      //populate choices array so that the ballots can have all of these choices
+      ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
     );
 
     await Promise.all(votableItems.map((x) => {
-        //save votable choices in world state
-        ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+      //save votable choices in world state
+      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
     }));
     return votableItems;
   }
