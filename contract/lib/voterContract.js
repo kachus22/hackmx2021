@@ -34,8 +34,8 @@ function loadJsonData(filepath) {
 
 // connect to the data files
 const electionData = loadJsonData('./lib/data/electionData.json');
-const ballotData = loadJsonData('./lib/data/ballotData.json');
-const registrarData = loadJsonData('./lib/data/registrarData.json');
+const ballotData = loadJsonData('./lib/data/ballotData.json').ballotOptions;
+const registrarData = loadJsonData('./lib/data/registrarData.json').registrars;
 
 class MyAssetContract extends Contract {
 
@@ -55,20 +55,19 @@ class MyAssetContract extends Contract {
     let registrars = await this.generateRegistrars(ctx);
     let voters = [];
 
-
     //create voters
-    let voter1 = await new Voter('V1', '234', 'Horea', 'Porutiu');
-    let voter2 = await new Voter('V2', '345', 'Duncan', 'Conley');
-
-    //update voters array
-    voters.push(voter1);
-    voters.push(voter2);
+    let voter1 = await new Voter(ctx, 'V1', registrars[0].registrarId, 'Horea', 'Porutiu');
+    let voter2 = await new Voter(ctx, 'V2', registrars[0].registrarId, 'Duncan', 'Conley');
 
     //add the voters to the world state, the election class checks for registered voters
     await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
     await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
 
-    let votableItems = await this.generateVotableItems(ctx, ballotData);
+    //update voters array
+    voters.push(voter1);
+    voters.push(voter2);
+
+    let votableItems = await this.generateVotableItems(ctx);
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
       if (!voters[i].ballot) {
@@ -107,9 +106,6 @@ class MyAssetContract extends Contract {
       //create the election
       election = await new Election(electionData.name, electionData.country,
       electionDate.start.year, electionStartDate, electionEndDate);
-
-      //update elections array
-      elections.push(election);
 
       await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
     } else {
@@ -268,10 +264,7 @@ class MyAssetContract extends Contract {
     const exists = await this.myAssetExists(ctx, myAssetId);
 
     if (!exists) {
-      // throw new Error(`The my asset ${myAssetId} does not exist`);
-      let response = {};
-      response.error = `The my asset ${myAssetId} does not exist`;
-      return response;
+      throw new Error(`The my asset ${myAssetId} does not exist`);
     }
 
     const buffer = await ctx.stub.getState(myAssetId);

@@ -6,17 +6,18 @@ class Voter {
    * Voter
    *
    * Constructor for a Voter object. Voter has a voterId and registrar that the
-   * voter is . 
-   *  
-   * @param items - an array of choices 
-   * @param election - what election you are making ballots for 
+   * voter is .
+   *
+   * @param ctx - the context of the transaction
    * @param voterId - the unique Id which corresponds to a registered voter
+   * @param registrarId - the unique Id which corresponds to a registrar where the voter is assigned
+   * @param firstName - first name of the voter
+   * @param lastName - last name of the voter
    * @returns - registrar object
    */
-  constructor(voterId, registrarId, firstName, lastName) {
+  constructor(ctx, voterId, registrarId, firstName, lastName) {
 
-    if (this.validateVoter(voterId) && this.validateRegistrar(registrarId)) {
-
+    if (this.validateVoter(voterId) && this.validateRegistrar(ctx, registrarId)) {
       this.voterId = voterId;
       this.registrarId = registrarId;
       this.firstName = firstName;
@@ -44,8 +45,8 @@ class Voter {
    * validateVoter
    *
    * check for valid ID card - stateID or drivers License.
-   *  
-   * @param voterId - an array of choices 
+   *
+   * @param voterId - an array of choices
    * @returns - yes if valid Voter, no if invalid
    */
   async validateVoter(voterId) {
@@ -62,19 +63,22 @@ class Voter {
    * validateRegistrar
    *
    * check for valid registrarId, should be cross checked with government
-   *  
-   * @param voterId - an array of choices 
+   *
+   * @param voterId - an array of choices
    * @returns - yes if valid Voter, no if invalid
    */
-  async validateRegistrar(registrarId) {
+  async validateRegistrar(ctx, registrarId) {
 
-    //registrarId error checking here, i.e. check if valid drivers License, or state ID
-    if (registrarId) {
+    const buffer = await ctx.stub.getState(registrarId);
+
+    if (!!buffer && buffer.length > 0) {
+      let voter = JSON.parse(buffer.toString());
+      // TODO: Maybe add some validation about the registrar
       return true;
     } else {
+      console.log('This ID is not registered to vote.');
       return false;
     }
   }
-
 }
 module.exports = Voter;

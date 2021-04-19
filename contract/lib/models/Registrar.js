@@ -17,8 +17,8 @@ class Center {
    *
    * @returns - registrar object
    */
-  constructor(id, country, state, locality, district, name, address) {
-    this.id = id;
+  constructor(registrarId, country, state, locality, district, name, address) {
+    this.registrarId = `R${registrarId}`;
     this.country = country;
     this.state = state;
     this.locality = locality;
