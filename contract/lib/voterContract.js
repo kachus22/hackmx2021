@@ -9,24 +9,35 @@ const { Contract } = require('fabric-contract-api');
 const path = require('path');
 const fs = require('fs');
 
-// connect to the election data file
-const electionDataPath = path.join(process.cwd(), './lib/data/electionData.json');
-const electionDataJson = fs.readFileSync(electionDataPath, 'utf8');
-const electionData = JSON.parse(electionDataJson);
-
-// connect to the ballot data file
-const ballotDataPath = path.join(process.cwd(), './lib/data/ballotData.json');
-const ballotDataJson = fs.readFileSync(ballotDataPath, 'utf8');
-const ballotData = JSON.parse(ballotDataJson);
-
 //import our file which contains our constructors and auxiliary function
-let Ballot = require('./Ballot.js');
-let Election = require('./Election.js');
-let Voter = require('./Voter.js');
-let VotableItem = require('./VotableItem.js');
+let Ballot = require('./models/Ballot.js');
+let Election = require('./models/Election.js');
+let Registrar = require('./models/Registrar.js');
+let VotableItem = require('./models/VotableItem.js');
+let Voter = require('./models/Voter.js');
 
-class MyAssetContract extends Contract {
+/**
+   *
+   * loadJsonData
+   *
+   * This function helps load JSON data from disk and parse it into an object
+   *
+   * @param filepath - the filepath where the data is
+   * @returns the object containing that data
+   */
+function loadJsonData(filepath) {
+  const dataPath = path.join(process.cwd(), filepath);
+  const dataJson = fs.readFileSync(dataPath, 'utf8');
+  return JSON.parse(dataJson);
+}
 
+
+// connect to the data files
+const electionData = loadJsonData('./lib/data/electionData.json');
+const ballotData = loadJsonData('./lib/data/ballotData.json').ballotOptions;
+const registrarData = loadJsonData('./lib/data/registrarData.json').registrars;
+
+class MyContract extends Contract {
   /**
    *
    * init
@@ -38,30 +49,52 @@ class MyAssetContract extends Contract {
    * @returns the voters which are registered and ready to vote in the election
    */
   async init(ctx) {
-
-    console.log('instantiate was called!');
-
+    // Initialize election
+    let election = await this.getOrGenerateElection(ctx);
+    let registrars = await this.generateRegistrars(ctx);
     let voters = [];
-    let elections = [];
-    let election;
 
     //create voters
-    let voter1 = await new Voter('V1', '234', 'Horea', 'Porutiu');
-    let voter2 = await new Voter('V2', '345', 'Duncan', 'Conley');
-
-    //update voters array
-    voters.push(voter1);
-    voters.push(voter2);
+    let voter1 = await new Voter(ctx, 'V1', registrars[0].registrarId, 'Horea', 'Porutiu');
+    let voter2 = await new Voter(ctx, 'V2', registrars[0].registrarId, 'Duncan', 'Conley');
 
     //add the voters to the world state, the election class checks for registered voters
     await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
     await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
 
+    //update voters array
+    voters.push(voter1);
+    voters.push(voter2);
+
+    let votableItems = await this.generateVotableItems(ctx);
+    //generate ballots for all voters
+    for (let i = 0; i < voters.length; i++) {
+      if (!voters[i].ballot) {
+        //give each registered voter a ballot
+        await this.generateBallot(ctx, votableItems, election, voters[i]);
+      } else {
+        console.log('these voters already have ballots');
+        break;
+      }
+    }
+    return voters;
+  }
+
+  /**
+   *
+   * getOrGenerateElection
+   *
+   * Gets or creates the Election to be used for this
+   *
+   * @param ctx - the context of the transaction
+   * @returns - The election that we are trying to use
+   */
+  async getOrGenerateElection (ctx) {
     //query for election first before creating one.
     let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
+    let election;
 
     if (currElections.length === 0) {
-
       // TODO: Improve Date handling. Maybe using Luxon.
       let electionDate = electionData.date;
       let electionStartDate = await new Date(electionDate.start.year, electionDate.start.month,
@@ -73,27 +106,36 @@ class MyAssetContract extends Contract {
       election = await new Election(electionData.name, electionData.country,
         electionDate.start.year, electionStartDate, electionEndDate);
 
-      //update elections array
-      elections.push(election);
-
       await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
     } else {
       election = currElections[0];
     }
+    return election;
+  }
 
-    let votableItems = await this.generateVotableItems(ctx, ballotData);
-    //generate ballots for all voters
-    for (let i = 0; i < voters.length; i++) {
-      if (!voters[i].ballot) {
-        //give each registered voter a ballot
-        await this.generateBallot(ctx, votableItems, election, voters[i]);
-      } else {
-        console.log('these voters already have ballots');
-        break;
-      }
-    }
+  /**
+   *
+   * generateRegistrars
+   *
+   * Generates the registrars which are where people is assigned to vote on.
+   *
+   * @param ctx - the context of the transaction
+   * @returns - The registrars for the election
+   */
+  async generateRegistrars (ctx) {
+    //create registrars
+    let registrars = await Promise.all(
+      //populate registrars array so that the voters can be in one of them
+      registrarData.map((x, i) => new Registrar(
+        i, x.country, x.state, x.locality, x.district, x.name, x.address
+      ))
+    );
 
-    return voters;
+    await Promise.all(registrars.map((x) => {
+      //save votable choices in world state
+      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+    }));
+    return registrars;
   }
 
   /**
@@ -105,19 +147,19 @@ class MyAssetContract extends Contract {
    * @param ctx - the context of the transaction
    * @returns - The different political parties and candidates you can vote for, which are on the ballot.
    */
-   async generateVotableItems(ctx) {
-       //create votableItems for the ballots
-       let votableItems = await Promise.all(
-            //populate choices array so that the ballots can have all of these choices
-            ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
-       );
+  async generateVotableItems(ctx) {
+    //create votableItems for the ballots
+    let votableItems = await Promise.all(
+      //populate choices array so that the ballots can have all of these choices
+      ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
+    );
 
-        await Promise.all(votableItems.map((i) => {
-            //save votable choices in world state
-            ctx.stub.putState(i.votableId, Buffer.from(JSON.stringify(i)));
-        }))
-        return votableItems;
-   }
+    await Promise.all(votableItems.map((x) => {
+      //save votable choices in world state
+      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+    }));
+    return votableItems;
+  }
 
   /**
    *
@@ -221,10 +263,7 @@ class MyAssetContract extends Contract {
     const exists = await this.myAssetExists(ctx, myAssetId);
 
     if (!exists) {
-      // throw new Error(`The my asset ${myAssetId} does not exist`);
-      let response = {};
-      response.error = `The my asset ${myAssetId} does not exist`;
-      return response;
+      throw new Error(`The my asset ${myAssetId} does not exist`);
     }
 
     const buffer = await ctx.stub.getState(myAssetId);
@@ -418,4 +457,4 @@ class MyAssetContract extends Contract {
 
   }
 }
-module.exports = MyAssetContract;
+module.exports = MyContract;
