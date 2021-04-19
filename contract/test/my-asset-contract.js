@@ -6,10 +6,11 @@
 
 const { ChaincodeStub, ClientIdentity } = require('fabric-shim');
 const { MyAssetContract } = require('..');
-let Voter = require('../lib/Voter.js');
-let VotableItem = require('../lib/VotableItem.js');
-let Election = require('../lib/Election.js');
-let Ballot = require('../lib/Ballot.js');
+let Voter = require('../lib/models/Voter.js');
+let VotableItem = require('../lib/models/VotableItem.js');
+let Election = require('../lib/models/Election.js');
+let Registrar = require('../lib/models/Registrar.js');
+let Ballot = require('../lib/models/Ballot.js');
 const winston = require('winston');
 
 
@@ -45,7 +46,7 @@ describe('MyAssetContract', () => {
     ctx = new TestContext();
     ctx.stub.getState.withArgs('1001').resolves(Buffer.from('{"value":"my asset 1001 value"}'));
     ctx.stub.getState.withArgs('1002').resolves(Buffer.from('{"value":"my asset 1002 value"}'));
-    
+
   });
 
   describe('#myAssetExists', () => {
@@ -123,7 +124,7 @@ describe('MyAssetContract', () => {
   describe('#Voter', async () => {
 
     it('Voter object should be created successfully, with all correct properties', async () => {
-      let voter = new Voter('1', '234', 'Horea', 'Porutiu'); 
+      let voter = new Voter('1', '234', 'Horea', 'Porutiu');
       voter.should.haveOwnProperty('name');
       voter.should.haveOwnProperty('voterId');
       voter.should.haveOwnProperty('firstName');
@@ -136,7 +137,7 @@ describe('MyAssetContract', () => {
   describe('#Election', async () => {
     it('Voter object should be created successfully, with all correct properties', async () => {
       let election = new Election('election4431', '2020 Presidential Election', 'USA',
-        '2020', 'April 4, 2020', 'April 5, 2020'); 
+        '2020', 'April 4, 2020', 'April 5, 2020');
       election.should.haveOwnProperty('electionId');
       election.should.haveOwnProperty('name');
       election.should.haveOwnProperty('country');
@@ -147,10 +148,21 @@ describe('MyAssetContract', () => {
 
   });
 
+  describe('#Registrar', async () => {
+
+    it('Registrar object should be created successfully, with all correct properties', async () => {
+      let registrar = new Registrar(1, 'Mexico', 'Nuevo León', 'Monterrey', 1, 'IBM', 'Tecnológico de Monterrey');
+      registrar.should.haveOwnProperty('district');
+      registrar.should.haveOwnProperty('address');
+      registrar.should.haveOwnProperty('id');
+    });
+
+  });
+
   describe('#Ballot', async () => {
 
     it('Ballot object should be created successfully, with all correct properties', async () => {
-      let ballot = new Ballot(ctx, 'someThingsToVoteOn', '2020 Pres Election', '1'); 
+      let ballot = new Ballot(ctx, 'someThingsToVoteOn', '2020 Pres Election', '1');
       ballot.should.haveOwnProperty('votableItems');
       ballot.should.haveOwnProperty('election');
       ballot.should.haveOwnProperty('voterId');
@@ -161,7 +173,7 @@ describe('MyAssetContract', () => {
   describe('#VotableIem', async () => {
 
     it('VotableIem object should be created successfully, with all correct properties', async () => {
-      let votableItem = new VotableItem(ctx, '1', 'president', 'should vote for pres', 'false'); 
+      let votableItem = new VotableItem(ctx, '1', 'president', 'should vote for pres', 'false');
 
       votableItem.should.haveOwnProperty('votableId');
       votableItem.should.haveOwnProperty('votableTitle');
