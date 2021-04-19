@@ -20,7 +20,7 @@ const connectionProfile = JSON.parse(ccpJSON);
 // A wallet stores a collection of identities for use
 const walletPath = path.join(process.cwd(), './wallet');
 const wallet = new FileSystemWallet(walletPath);
-console.log(`Wallet path: ${walletPath}`);
+// console.log(`Wallet path: ${walletPath}`);
 
 const peerIdentity = 'voterApp-admin';
 

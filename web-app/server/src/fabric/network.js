@@ -43,8 +43,7 @@ exports.connectToNetwork = async function (userName) {
     if (!userExists) {
       console.log('An identity for the user ' + userName + ' does not exist in the wallet');
       console.log('Run the registerUser.js application before retrying');
-      let response = {};
-      response.error = 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' firstasdasdas';
+      let response = { error: 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' first' };
       return response;
     }
 
@@ -127,8 +126,8 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
         let response = await networkObj.contract.submitTransaction(func, args);
         // console.log('after submit');
 
-        // console.log(response);
-        // console.log(`Transaction ${func} with args ${args} has been submitted`);
+        console.log(response);
+        console.log(`Transaction ${func} with args ${args} has been submitted`);
   
         await networkObj.gateway.disconnect();
   
@@ -194,7 +193,7 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     // Get the CA client object from the gateway for interacting with the CA.
     const ca = gateway.getClient().getCertificateAuthority();
     const adminIdentity = gateway.getCurrentIdentity();
-    console.log(`AdminIdentity: + ${adminIdentity}`);
+    // console.log(`AdminIdentity: + ${adminIdentity}`);
 
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: '', enrollmentID: voterId, role: 'client' }, adminIdentity);
@@ -202,8 +201,8 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     const enrollment = await ca.enroll({ enrollmentID: voterId, enrollmentSecret: secret });
     const userIdentity = await X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
     await wallet.import(voterId, userIdentity);
-    console.log(`Successfully registered voter ${firstName} ${lastName}. Use voterId ${voterId} to login above.`);
     let response = `Successfully registered voter ${firstName} ${lastName}. Use voterId ${voterId} to login above.`;
+    console.log(response);
     return response;
 
   } catch (error) {
