@@ -14,8 +14,8 @@ const electionDataPath = path.join(process.cwd(), './lib/data/electionData.json'
 const electionDataJson = fs.readFileSync(electionDataPath, 'utf8');
 const electionData = JSON.parse(electionDataJson);
 
-// connect to the pres election file
-const ballotDataPath = path.join(process.cwd(), './lib/data/presElection.json');
+// connect to the ballot data file
+const ballotDataPath = path.join(process.cwd(), './lib/data/ballotData.json');
 const ballotDataJson = fs.readFileSync(ballotDataPath, 'utf8');
 const ballotData = JSON.parse(ballotDataJson);
 
@@ -42,7 +42,6 @@ class MyAssetContract extends Contract {
     console.log('instantiate was called!');
 
     let voters = [];
-    let votableItems = [];
     let elections = [];
     let election;
 
@@ -63,62 +62,62 @@ class MyAssetContract extends Contract {
 
     if (currElections.length === 0) {
 
-      //Nov 3 is election day
-      let electionStartDate = await new Date(2020, 11, 3);
-      let electionEndDate = await new Date(2020, 11, 4);
+      // TODO: Improve Date handling. Maybe using Luxon.
+      let electionDate = electionData.date;
+      let electionStartDate = await new Date(electionDate.start.year, electionDate.start.month,
+        electionDate.start.day, electionDate.start.hour, electionDate.start.minute);
+      let electionEndDate = await new Date(electionDate.end.year, electionDate.end.month,
+        electionDate.end.day, electionDate.end.hour, electionDate.end.minute);
 
       //create the election
-      election = await new Election(electionData.electionName, electionData.electionCountry,
-        electionData.electionYear, electionStartDate, electionEndDate);
+      election = await new Election(electionData.name, electionData.country,
+        electionDate.start.year, electionStartDate, electionEndDate);
 
       //update elections array
       elections.push(election);
 
       await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
-
     } else {
       election = currElections[0];
     }
 
-    //create votableItems for the ballots
-    let repVotable = await new VotableItem(ctx, 'Republican', ballotData.fedDemocratBrief);
-    let demVotable = await new VotableItem(ctx, 'Democrat', ballotData.republicanBrief);
-    let indVotable = await new VotableItem(ctx, 'Green', ballotData.greenBrief);
-    let grnVotable = await new VotableItem(ctx, 'Independent', ballotData.independentBrief);
-    let libVotable = await new VotableItem(ctx, 'Libertarian', ballotData.libertarianBrief);
-
-    //populate choices array so that the ballots can have all of these choices
-    votableItems.push(repVotable);
-    votableItems.push(demVotable);
-    votableItems.push(indVotable);
-    votableItems.push(grnVotable);
-    votableItems.push(libVotable);
-
-    for (let i = 0; i < votableItems.length; i++) {
-
-      //save votable choices in world state
-      await ctx.stub.putState(votableItems[i].votableId, Buffer.from(JSON.stringify(votableItems[i])));
-
-    }
-
+    let votableItems = await this.generateVotableItems(ctx, ballotData);
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
-
       if (!voters[i].ballot) {
-
         //give each registered voter a ballot
         await this.generateBallot(ctx, votableItems, election, voters[i]);
-
       } else {
         console.log('these voters already have ballots');
         break;
       }
-
     }
 
     return voters;
-
   }
+
+  /**
+   *
+   * generateVotableItems
+   *
+   * Creates the votables items available in the world state
+   *
+   * @param ctx - the context of the transaction
+   * @returns - The different political parties and candidates you can vote for, which are on the ballot.
+   */
+   async generateVotableItems(ctx) {
+       //create votableItems for the ballots
+       let votableItems = await Promise.all(
+            //populate choices array so that the ballots can have all of these choices
+            ballotData.map((x) => new VotableItem(ctx, x.id, x.brief))
+       );
+
+        await Promise.all(votableItems.map((i) => {
+            //save votable choices in world state
+            ctx.stub.putState(i.votableId, Buffer.from(JSON.stringify(i)));
+        }))
+        return votableItems;
+   }
 
   /**
    *
@@ -133,7 +132,6 @@ class MyAssetContract extends Contract {
    * @returns - nothing - but updates the world state with a ballot for a particular voter object
    */
   async generateBallot(ctx, votableItems, election, voter) {
-
     //generate ballot
     let ballot = await new Ballot(ctx, votableItems, election, voter.voterId);
 
@@ -141,11 +139,9 @@ class MyAssetContract extends Contract {
     voter.ballot = ballot.ballotId;
     voter.ballotCreated = true;
 
-    // //update state with ballot object we just created
+    //update state with ballot object we just created
     await ctx.stub.putState(ballot.ballotId, Buffer.from(JSON.stringify(ballot)));
-
     await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
-
   }
 
 
@@ -204,14 +200,12 @@ class MyAssetContract extends Contract {
    * @returns - nothing - but deletes the value in the world state
    */
   async deleteMyAsset(ctx, myAssetId) {
-
     const exists = await this.myAssetExists(ctx, myAssetId);
     if (!exists) {
       throw new Error(`The my asset ${myAssetId} does not exist`);
     }
 
     await ctx.stub.deleteState(myAssetId);
-
   }
 
   /**
@@ -224,7 +218,6 @@ class MyAssetContract extends Contract {
    * @returns - nothing - but reads the value in the world state
    */
   async readMyAsset(ctx, myAssetId) {
-
     const exists = await this.myAssetExists(ctx, myAssetId);
 
     if (!exists) {
@@ -250,10 +243,8 @@ class MyAssetContract extends Contract {
    * @returns boolean indicating if the asset exists or not.
    */
   async myAssetExists(ctx, myAssetId) {
-
     const buffer = await ctx.stub.getState(myAssetId);
     return (!!buffer && buffer.length > 0);
-
   }
 
   /**
