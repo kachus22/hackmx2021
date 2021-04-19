@@ -2,23 +2,23 @@
   "ballotOptions": [
     {
       "id": "Republican",
-      "brief": "Donald Trump (Republican)"
+      "candidates": ["Donald Trump", "Pato Donald"]
     },
     {
       "id": "Democrat",
-      "brief": "Joe Biden (Democrat)"
+      "candidates": ["Joe Biden", "John Biden"]
     },
     {
       "id": "Green",
-      "brief": "TBA (Green)"
+      "candidates": ["Joe Biden", "John Biden"]
     },
     {
       "id": "Independent",
-      "brief": "TBA (Independent)"
+      "candidates": ["Joe Biden", "John Biden"]
     },
     {
       "id": "Libertarian",
-      "brief": "TBA (Libertarian)"
+      "candidates": ["Joe Biden", "John Biden"]
     }
   ]
 }
