@@ -57,14 +57,17 @@ class MyContract extends Contract {
     //create voters
     let voter1 = await new Voter(ctx, 'V1', registrars[0].registrarId, 'Horea', 'Porutiu');
     let voter2 = await new Voter(ctx, 'V2', registrars[0].registrarId, 'Duncan', 'Conley');
+    let voter3 = await new Voter(ctx, 'V3', registrars[1].registrarId, 'Rex', 'McConaughey');
 
     //add the voters to the world state, the election class checks for registered voters
     await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
     await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
+    await ctx.stub.putState(voter3.voterId, Buffer.from(JSON.stringify(voter3)));
 
     //update voters array
     voters.push(voter1);
     voters.push(voter2);
+    voters.push(voter3);
 
     let votableItems = await this.generateVotableItems(ctx);
     //generate ballots for all voters
