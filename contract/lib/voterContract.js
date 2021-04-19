@@ -37,8 +37,7 @@ const electionData = loadJsonData('./lib/data/electionData.json');
 const ballotData = loadJsonData('./lib/data/ballotData.json').ballotOptions;
 const registrarData = loadJsonData('./lib/data/registrarData.json').registrars;
 
-class MyAssetContract extends Contract {
-
+class MyContract extends Contract {
   /**
    *
    * init
@@ -458,4 +457,4 @@ class MyAssetContract extends Contract {
 
   }
 }
-module.exports = MyAssetContract;
+module.exports = MyContract;

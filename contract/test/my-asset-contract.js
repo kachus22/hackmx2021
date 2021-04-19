@@ -5,7 +5,7 @@
 'use strict';
 
 const { ChaincodeStub, ClientIdentity } = require('fabric-shim');
-const { MyAssetContract } = require('..');
+const { MyContract } = require('..');
 let Voter = require('../lib/models/Voter.js');
 let VotableItem = require('../lib/models/VotableItem.js');
 let Election = require('../lib/models/Election.js');
@@ -36,13 +36,13 @@ class TestContext {
 
 }
 
-describe('MyAssetContract', () => {
+describe('MyContract', () => {
 
   let contract;
   let ctx;
 
   beforeEach(async () => {
-    contract = new MyAssetContract();
+    contract = new MyContract();
     ctx = new TestContext();
     ctx.stub.getState.withArgs('1001').resolves(Buffer.from('{"value":"my asset 1001 value"}'));
     ctx.stub.getState.withArgs('1002').resolves(Buffer.from('{"value":"my asset 1002 value"}'));
