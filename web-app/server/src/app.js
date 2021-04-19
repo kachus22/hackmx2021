@@ -97,7 +97,7 @@ app.post('/registerVoter', async (req, res) => {
       // Connect to network and update the state with voterId
       let invokeResponse = await network.invoke(networkObj, false, 'createVoter', args);
       
-      if (invokeResponse.error) {
+      if (invokeResponse.error) {  
         res.send(invokeResponse.error);
       } else {
         let parsedResponse = invokeResponse.toString();
