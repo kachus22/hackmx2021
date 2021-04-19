@@ -11,16 +11,16 @@ class Ballot {
    *
    * @param ctx - the context of the transaction
    * @param items - an array of choices
-   * @param election - what election you are making ballots for
+   * @param electionId - what election you are making ballots for
    * @param voterId - the unique Id which corresponds to a registered voter
    * @returns - ballot object
    */
-  constructor(ctx, items, election, voterId) {
+  constructor(ctx, items, electionId, voterId) {
     if (this.validateBallot(ctx, voterId)) {
       const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       this.ballotId = `Ballot:${id}`;
       this.votableItems = items;
-      this.election = election;
+      this.electionId = electionId;
       this.voterId = voterId;
       this.ballotCast = false;
       this.type = 'ballot';

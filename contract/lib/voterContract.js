@@ -51,30 +51,15 @@ class MyContract extends Contract {
   async init(ctx) {
     // Initialize election
     let election = await this.getOrGenerateElection(ctx);
-    let registrars = await this.generateRegistrars(ctx);
+    await this.generateRegistrars(ctx);
     let voters = [];
-
-    //create voters
-    let voter1 = await new Voter(ctx, 'V1', registrars[0].registrarId, 'Horea', 'Porutiu');
-    let voter2 = await new Voter(ctx, 'V2', registrars[0].registrarId, 'Duncan', 'Conley');
-    let voter3 = await new Voter(ctx, 'V3', registrars[1].registrarId, 'Rex', 'McConaughey');
-
-    //add the voters to the world state, the election class checks for registered voters
-    await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
-    await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
-    await ctx.stub.putState(voter3.voterId, Buffer.from(JSON.stringify(voter3)));
-
-    //update voters array
-    voters.push(voter1);
-    voters.push(voter2);
-    voters.push(voter3);
 
     let votableItems = await this.generateVotableItems(ctx);
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
       if (!voters[i].ballot) {
         //give each registered voter a ballot
-        await this.generateBallot(ctx, votableItems, election, voters[i]);
+        await this.generateBallot(ctx, votableItems, election.id, voters[i]);
       } else {
         console.log('these voters already have ballots');
         break;
@@ -172,13 +157,13 @@ class MyContract extends Contract {
    *
    * @param ctx - the context of the transaction
    * @param votableItems - The different political parties and candidates you can vote for, which are on the ballot.
-   * @param election - the election we are generating a ballot for. All ballots are the same for an election.
+   * @param electionId - the election Id we are generating a ballot for. All ballots are the same for an election.
    * @param voter - the voter object
    * @returns - nothing - but updates the world state with a ballot for a particular voter object
    */
-  async generateBallot(ctx, votableItems, election, voter) {
+  async generateBallot(ctx, votableItems, electionId, voter) {
     //generate ballot
-    let ballot = await new Ballot(ctx, votableItems, election, voter.voterId);
+    let ballot = await new Ballot(ctx, votableItems, electionId, voter.voterId);
 
     //set reference to voters ballot
     voter.ballot = ballot.ballotId;
