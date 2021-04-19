@@ -51,27 +51,15 @@ class MyContract extends Contract {
   async init(ctx) {
     // Initialize election
     let election = await this.getOrGenerateElection(ctx);
-    let registrars = await this.generateRegistrars(ctx);
+    await this.generateRegistrars(ctx);
     let voters = [];
-
-    //create voters
-    let voter1 = await new Voter(ctx, 'V1', registrars[0].registrarId, 'Horea', 'Porutiu');
-    let voter2 = await new Voter(ctx, 'V2', registrars[0].registrarId, 'Duncan', 'Conley');
-
-    //add the voters to the world state, the election class checks for registered voters
-    await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
-    await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
-
-    //update voters array
-    voters.push(voter1);
-    voters.push(voter2);
 
     let votableItems = await this.generateVotableItems(ctx);
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
       if (!voters[i].ballot) {
         //give each registered voter a ballot
-        await this.generateBallot(ctx, votableItems, election, voters[i]);
+        await this.generateBallot(ctx, votableItems, election.id, voters[i]);
       } else {
         console.log('these voters already have ballots');
         break;
@@ -133,7 +121,7 @@ class MyContract extends Contract {
 
     await Promise.all(registrars.map((x) => {
       //save votable choices in world state
-      ctx.stub.putState(x.votableId, Buffer.from(JSON.stringify(x)));
+      ctx.stub.putState(x.registrarId, Buffer.from(JSON.stringify(x)));
     }));
     return registrars;
   }
@@ -169,13 +157,13 @@ class MyContract extends Contract {
    *
    * @param ctx - the context of the transaction
    * @param votableItems - The different political parties and candidates you can vote for, which are on the ballot.
-   * @param election - the election we are generating a ballot for. All ballots are the same for an election.
+   * @param electionId - the election Id we are generating a ballot for. All ballots are the same for an election.
    * @param voter - the voter object
    * @returns - nothing - but updates the world state with a ballot for a particular voter object
    */
-  async generateBallot(ctx, votableItems, election, voter) {
+  async generateBallot(ctx, votableItems, electionId, voter) {
     //generate ballot
-    let ballot = await new Ballot(ctx, votableItems, election, voter.voterId);
+    let ballot = await new Ballot(ctx, votableItems, electionId, voter.voterId);
 
     //set reference to voters ballot
     voter.ballot = ballot.ballotId;
@@ -204,7 +192,7 @@ class MyContract extends Contract {
     args = JSON.parse(args);
 
     //create a new voter
-    let newVoter = await new Voter(args.voterId, args.registrarId, args.firstName, args.lastName);
+    let newVoter = await new Voter(ctx, args.voterId, args.registrarId, args.firstName, args.lastName);
 
     //update state with new voter
     await ctx.stub.putState(newVoter.voterId, Buffer.from(JSON.stringify(newVoter)));
@@ -213,8 +201,7 @@ class MyContract extends Contract {
     let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
 
     if (currElections.length === 0) {
-      let response = {};
-      response.error = 'no elections. Run the init() function first.';
+      let response = { error: 'no elections. Run the init() function first.' };
       return response;
     }
 
@@ -226,7 +213,7 @@ class MyContract extends Contract {
     //generate ballot with the given votableItems
     await this.generateBallot(ctx, votableItems, currElection, newVoter);
 
-    let response = `voter with voterId ${newVoter.voterId} is updated in the world state`;
+    let response = { message: `voter with voterId ${newVoter.voterId} is updated in the world state` };
     return response;
   }
 
@@ -319,13 +306,12 @@ class MyContract extends Contract {
       let voter = await JSON.parse(voterAsBytes);
 
       if (voter.ballotCast) {
-        let response = {};
-        response.error = 'this voter has already cast this ballot!';
+        let response = { error: 'This voter has already cast this ballot.' };
         return response;
       }
 
       //check the date of the election, to make sure the election is still open
-      let currentTime = await new Date(2020, 11, 3);
+      let currentTime = await new Date();
 
       //parse date objects
       let parsedCurrentTime = await Date.parse(currentTime);
@@ -337,8 +323,7 @@ class MyContract extends Contract {
 
         let votableExists = await this.myAssetExists(ctx, votableId);
         if (!votableExists) {
-          let response = {};
-          response.error = 'VotableId does not exist!';
+          let response = { error: 'VotableId does not exist.' };
           return response;
         }
 
@@ -350,8 +335,7 @@ class MyContract extends Contract {
         await votable.count++;
 
         //update the state with the new vote count
-        let result = await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
-        console.log(result);
+        await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
 
         //make sure this voter cannot vote again!
         voter.ballotCast = true;
@@ -359,19 +343,16 @@ class MyContract extends Contract {
         voter.picked = args.picked;
 
         //update state to say that this voter has voted, and who they picked
-        let response = await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
-        console.log(response);
+        await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
         return voter;
 
       } else {
-        let response = {};
-        response.error = 'the election is not open now!';
+        let response = { error: `The election is not open now. It opens at ${electionStart}.` };
         return response;
       }
 
     } else {
-      let response = {};
-      response.error = 'the election or the voter does not exist!';
+      let response = { error: 'The election does not exist.' };
       return response;
     }
   }

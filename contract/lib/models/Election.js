@@ -15,7 +15,8 @@ class Election {
    * @returns - registrar object
    */
   constructor(name, country, year, startDate, endDate) {
-    this.electionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    this.electionId = `Election:${id}`;
 
     if (this.validateElection(this.electionId)) {
       //create the election object

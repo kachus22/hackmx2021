@@ -6,19 +6,21 @@ const path = require('path');
 const fs = require('fs');
 
 //connect to the config file
-const configPath = path.join(process.cwd(), './config.json');
+const configPath = path.join(process.cwd(), './config/config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
 
+let connection_file = config.connection_file;
+
 // connect to the connection file
-const ccpPath = path.join(process.cwd(), './ibpConnection.json');
+const ccpPath = path.join(process.cwd(), `./config/${connection_file}`);
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const connectionProfile = JSON.parse(ccpJSON);
 
 // A wallet stores a collection of identities for use
 const walletPath = path.join(process.cwd(), './wallet');
 const wallet = new FileSystemWallet(walletPath);
-console.log(`Wallet path: ${walletPath}`);
+// console.log(`Wallet path: ${walletPath}`);
 
 const peerIdentity = 'voterApp-admin';
 

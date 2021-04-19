@@ -6,17 +6,17 @@ const path = require('path');
 const fs = require('fs');
 
 //connect to the config file
-const configPath = path.join(process.cwd(), './config.json');
+const configPath = path.join(process.cwd(), './config/config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
-let connection_file = config.connection_file;
-// let userName = config.userName;
-let gatewayDiscovery = config.gatewayDiscovery;
-let appAdmin = config.appAdmin;
-let orgMSPID = config.orgMSPID;
+
+const connection_file = config.connection_file;
+const gatewayDiscovery = config.gatewayDiscovery;
+const appAdmin = config.appAdmin;
+const orgMSPID = config.orgMSPID;
 
 // connect to the connection file
-const ccpPath = path.join(process.cwd(), connection_file);
+const ccpPath = path.join(process.cwd(), `./config/${connection_file}`);
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
@@ -30,21 +30,20 @@ exports.connectToNetwork = async function (userName) {
   try {
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
-    console.log('userName: ');
-    console.log(userName);
+    // console.log(`Wallet path: ${walletPath}`);
+    // console.log('userName: ');
+    // console.log(userName);
 
     console.log('wallet: ');
     console.log(util.inspect(wallet));
-    console.log('ccp: ');
-    console.log(util.inspect(ccp));
-    // userName = 'V123412';
+    // console.log('ccp: ');
+    // console.log(util.inspect(ccp));
+
     const userExists = await wallet.exists(userName);
     if (!userExists) {
       console.log('An identity for the user ' + userName + ' does not exist in the wallet');
       console.log('Run the registerUser.js application before retrying');
-      let response = {};
-      response.error = 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' first';
+      let response = { error: 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' first' };
       return response;
     }
 
@@ -82,22 +81,16 @@ exports.connectToNetwork = async function (userName) {
 
 exports.invoke = async function (networkObj, isQuery, func, args) {
   try {
-    console.log('inside invoke');
-    console.log(`isQuery: ${isQuery}, func: ${func}, args: ${args}`);
-    console.log(util.inspect(networkObj));
-
-
+    // console.log('inside invoke');
+    // console.log(`isQuery: ${isQuery}, func: ${func}, args: ${args}`);
+    // console.log(util.inspect(networkObj));
     // console.log(util.inspect(JSON.parse(args[0])));
 
     if (isQuery === true) {
-      console.log('inside isQuery');
-
       if (args) {
-        console.log('inside isQuery, args');
-        console.log(args);
         let response = await networkObj.contract.evaluateTransaction(func, args);
-        console.log(response);
-        console.log(`Transaction ${func} with args ${args} has been evaluated`);
+        // console.log(response);
+        // console.log(`Transaction ${func} with args ${args} has been evaluated`);
   
         await networkObj.gateway.disconnect();
   
@@ -114,24 +107,24 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
         return response;
       }
     } else {
-      console.log('notQuery');
+      // console.log('notQuery');
       if (args) {
-        console.log('notQuery, args');
-        console.log('$$$$$$$$$$$$$ args: ');
-        console.log(args);
-        console.log(func);
-        console.log(typeof args);
+        // console.log('notQuery, args');
+        // console.log('$$$$$$$$$$$$$ args: ');
+        // console.log(args);
+        // console.log(func);
+        // console.log(typeof args);
 
         args = JSON.parse(args[0]);
 
-        console.log(util.inspect(args));
+        // console.log(util.inspect(args));
         args = JSON.stringify(args);
-        console.log(util.inspect(args));
+        // console.log(util.inspect(args));
 
-        console.log('before submit');
-        console.log(util.inspect(networkObj));
+        // console.log('before submit');
+        // console.log(util.inspect(networkObj));
         let response = await networkObj.contract.submitTransaction(func, args);
-        console.log('after submit');
+        // console.log('after submit');
 
         console.log(response);
         console.log(`Transaction ${func} with args ${args} has been submitted`);
@@ -143,8 +136,8 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
 
       } else {
         let response = await networkObj.contract.submitTransaction(func);
-        console.log(response);
-        console.log(`Transaction ${func} with args has been submitted`);
+        // console.log(response);
+        // console.log(`Transaction ${func} with args has been submitted`);
   
         await networkObj.gateway.disconnect();
   
@@ -153,19 +146,13 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
     }
 
   } catch (error) {
-    console.error(`Failed to submit transaction: ${error}`);
-    return error;
+    // console.error(`Failed to submit transaction: ${error}`);
+    let response = { error: error.message }
+    return response;
   }
 };
 
 exports.registerVoter = async function (voterId, registrarId, firstName, lastName) {
-
-  console.log('registrarId');
-  console.log(registrarId);
-
-  console.log('voterId ');
-  console.log(voterId);
-
   if (!registrarId || !voterId || !firstName || !lastName) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -177,8 +164,6 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     // Create a new file system based wallet for managing identities.
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
-    console.log(wallet);
 
     // Check to see if we've already enrolled the user.
     const userExists = await wallet.exists(voterId);
@@ -208,7 +193,12 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     // Get the CA client object from the gateway for interacting with the CA.
     const ca = gateway.getClient().getCertificateAuthority();
     const adminIdentity = gateway.getCurrentIdentity();
-    console.log(`AdminIdentity: + ${adminIdentity}`);
+    // console.log(`AdminIdentity: + ${adminIdentity}`);
+
+    console.log()
+    console.log()
+    console.log()
+    console.log('cacacaca')
 
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: '', enrollmentID: voterId, role: 'client' }, adminIdentity);
@@ -216,13 +206,13 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     const enrollment = await ca.enroll({ enrollmentID: voterId, enrollmentSecret: secret });
     const userIdentity = await X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
     await wallet.import(voterId, userIdentity);
-    console.log(`Successfully registered voter ${firstName} ${lastName}. Use voterId ${voterId} to login above.`);
     let response = `Successfully registered voter ${firstName} ${lastName}. Use voterId ${voterId} to login above.`;
+    console.log(response);
     return response;
+
   } catch (error) {
     console.error(`Failed to register user + ${voterId} + : ${error}`);
-    let response = {};
-    response.error = error;
+    let response = { error: error.message };
     return response;
   }
 };

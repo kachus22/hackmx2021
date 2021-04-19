@@ -17,7 +17,7 @@ class Voter {
    */
   constructor(ctx, voterId, registrarId, firstName, lastName) {
     if (this.validateVoter(voterId) && this.validateRegistrar(ctx, registrarId)) {
-      this.voterId = voterId;
+      this.voterId = `Voter:${voterId}`;
       this.registrarId = registrarId;
       this.firstName = firstName;
       this.lastName = lastName;
@@ -71,9 +71,9 @@ class Voter {
     const buffer = await ctx.stub.getState(registrarId);
 
     if (!!buffer && buffer.length > 0) {
-      let voter = JSON.parse(buffer.toString());
+      // let registrar = JSON.parse(buffer.toString());
       // TODO: Maybe add some validation about the registrar
-      return voter !== null;
+      return true;
     } else {
       console.log('This ID is not registered to vote.');
       return false;

@@ -95,6 +95,7 @@ export default {
           console.log(apiResponse.data.error);
           this.loginReponse = apiResponse.data.error;
         } else {
+          // TODO: Validate that Registrar Id matches the one that we are in.
           this.$router.push("castBallot");
         }
 
