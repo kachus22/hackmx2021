@@ -5,11 +5,12 @@
 'use strict';
 
 const { ChaincodeStub, ClientIdentity } = require('fabric-shim');
-const { MyAssetContract } = require('..');
-let Voter = require('../lib/Voter.js');
-let VotableItem = require('../lib/VotableItem.js');
-let Election = require('../lib/Election.js');
-let Ballot = require('../lib/Ballot.js');
+const { MyContract } = require('..');
+let Voter = require('../lib/models/Voter.js');
+let VotableItem = require('../lib/models/VotableItem.js');
+let Election = require('../lib/models/Election.js');
+let Registrar = require('../lib/models/Registrar.js');
+let Ballot = require('../lib/models/Ballot.js');
 const winston = require('winston');
 
 
@@ -35,17 +36,17 @@ class TestContext {
 
 }
 
-describe('MyAssetContract', () => {
+describe('MyContract', () => {
 
   let contract;
   let ctx;
 
   beforeEach(async () => {
-    contract = new MyAssetContract();
+    contract = new MyContract();
     ctx = new TestContext();
     ctx.stub.getState.withArgs('1001').resolves(Buffer.from('{"value":"my asset 1001 value"}'));
     ctx.stub.getState.withArgs('1002').resolves(Buffer.from('{"value":"my asset 1002 value"}'));
-    
+
   });
 
   describe('#myAssetExists', () => {
@@ -61,14 +62,14 @@ describe('MyAssetContract', () => {
 
   describe('#createMyAsset', () => {
 
-    it('should create a my asset', async () => {
-      await contract.createMyAsset(ctx, '1003', 'my asset 1003 value');
-      ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"my asset 1003 value"}'));
-    });
+    // it('should create a my asset', async () => {
+    //   await contract.createMyAsset(ctx, '1003', 'my asset 1003 value');
+    //   ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"my asset 1003 value"}'));
+    // });
 
-    it('should throw an error for a my asset that already exists', async () => {
-      await contract.createMyAsset(ctx, '1001', 'myvalue').should.be.rejectedWith(/The my asset 1001 already exists/);
-    });
+    // it('should throw an error for a my asset that already exists', async () => {
+    //   await contract.createMyAsset(ctx, '1001', 'myvalue').should.be.rejectedWith(/The my asset 1001 already exists/);
+    // });
 
   });
 
@@ -86,10 +87,10 @@ describe('MyAssetContract', () => {
 
   describe('#updateMyAsset', () => {
 
-    it('should update a my asset', async () => {
-      await contract.updateMyAsset(ctx, '1001', 'my asset 1001 new value');
-      ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('"my asset 1001 new value"'));
-    });
+    // it('should update a my asset', async () => {
+    //   await contract.updateMyAsset(ctx, '1001', 'my asset 1001 new value');
+    //   ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('"my asset 1001 new value"'));
+    // });
 
     // it('should throw an error for a my asset that does not exist', async () => {
     //   await contract.updateMyAsset(ctx, '1003', 'my asset 1003 new value').should.be.rejectedWith(/The my asset 1003 does not exist/);
@@ -123,8 +124,7 @@ describe('MyAssetContract', () => {
   describe('#Voter', async () => {
 
     it('Voter object should be created successfully, with all correct properties', async () => {
-      let voter = new Voter('1', '234', 'Horea', 'Porutiu'); 
-      voter.should.haveOwnProperty('name');
+      let voter = new Voter('1', '234', 'Horea', 'Porutiu');
       voter.should.haveOwnProperty('voterId');
       voter.should.haveOwnProperty('firstName');
       voter.should.haveOwnProperty('lastName');
@@ -136,7 +136,7 @@ describe('MyAssetContract', () => {
   describe('#Election', async () => {
     it('Voter object should be created successfully, with all correct properties', async () => {
       let election = new Election('election4431', '2020 Presidential Election', 'USA',
-        '2020', 'April 4, 2020', 'April 5, 2020'); 
+        '2020', 'April 4, 2020', 'April 5, 2020');
       election.should.haveOwnProperty('electionId');
       election.should.haveOwnProperty('name');
       election.should.haveOwnProperty('country');
@@ -147,10 +147,21 @@ describe('MyAssetContract', () => {
 
   });
 
+  describe('#Registrar', async () => {
+
+    it('Registrar object should be created successfully, with all correct properties', async () => {
+      let registrar = new Registrar(1, 'Mexico', 'Nuevo León', 'Monterrey', 1, 'IBM', 'Tecnológico de Monterrey');
+      registrar.should.haveOwnProperty('district');
+      registrar.should.haveOwnProperty('address');
+      registrar.should.haveOwnProperty('id');
+    });
+
+  });
+
   describe('#Ballot', async () => {
 
     it('Ballot object should be created successfully, with all correct properties', async () => {
-      let ballot = new Ballot(ctx, 'someThingsToVoteOn', '2020 Pres Election', '1'); 
+      let ballot = new Ballot(ctx, 'someThingsToVoteOn', '2020 Pres Election', '1');
       ballot.should.haveOwnProperty('votableItems');
       ballot.should.haveOwnProperty('election');
       ballot.should.haveOwnProperty('voterId');
@@ -158,16 +169,13 @@ describe('MyAssetContract', () => {
 
   });
 
-  describe('#VotableIem', async () => {
+  describe('#VotableItem', async () => {
 
-    it('VotableIem object should be created successfully, with all correct properties', async () => {
-      let votableItem = new VotableItem(ctx, '1', 'president', 'should vote for pres', 'false'); 
+    it('VotableItem object should be created successfully, with all correct properties', async () => {
+      let votableItem = new VotableItem(ctx, '1', 'president');
 
       votableItem.should.haveOwnProperty('votableId');
-      votableItem.should.haveOwnProperty('votableTitle');
       votableItem.should.haveOwnProperty('description');
-      votableItem.should.haveOwnProperty('isProp');
-      votableItem.votableId.should.have.lengthOf(1);
     });
 
   });
