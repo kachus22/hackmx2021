@@ -10,10 +10,10 @@ const configPath = path.join(process.cwd(), './config/config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
 
-let connection_file = config.connection_file;
-let gatewayDiscovery = config.gatewayDiscovery;
-let appAdmin = config.appAdmin;
-let orgMSPID = config.orgMSPID;
+const connection_file = config.connection_file;
+const gatewayDiscovery = config.gatewayDiscovery;
+const appAdmin = config.appAdmin;
+const orgMSPID = config.orgMSPID;
 
 // connect to the connection file
 const ccpPath = path.join(process.cwd(), `./config/${connection_file}`);
@@ -194,6 +194,11 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     const ca = gateway.getClient().getCertificateAuthority();
     const adminIdentity = gateway.getCurrentIdentity();
     // console.log(`AdminIdentity: + ${adminIdentity}`);
+
+    console.log()
+    console.log()
+    console.log()
+    console.log('cacacaca')
 
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: '', enrollmentID: voterId, role: 'client' }, adminIdentity);

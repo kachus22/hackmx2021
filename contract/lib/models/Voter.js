@@ -71,9 +71,9 @@ class Voter {
     const buffer = await ctx.stub.getState(registrarId);
 
     if (!!buffer && buffer.length > 0) {
-      let registrar = JSON.parse(buffer.toString());
+      // let registrar = JSON.parse(buffer.toString());
       // TODO: Maybe add some validation about the registrar
-      return registrar !== null;
+      return true;
     } else {
       console.log('This ID is not registered to vote.');
       return false;
