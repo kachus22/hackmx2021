@@ -10,20 +10,14 @@ const fs = require('fs');
 const path = require('path');
 
 // capture network variables from config.json
-const configPath = path.join(process.cwd(), './config.json');
+const configPath = path.join(process.cwd(), './config/config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
 
-// let connection_file = config.connection_file;
 let appAdmin = config.appAdmin;
 let appAdminSecret = config.appAdminSecret;
 let orgMSPID = config.orgMSPID;
 let caName = config.caName;
-
-// const ccpPath = path.join(process.cwd(), './www/blockchain/ibpConnection.json');
-// const ccpPath = path.join(process.cwd(), './ibpConnection.json');
-// const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-// const ccp = JSON.parse(ccpJSON);
 
 async function main() {
   try {
@@ -48,7 +42,7 @@ async function main() {
     const enrollment = await ca.enroll({ enrollmentID: appAdmin, enrollmentSecret: appAdminSecret });
     const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
     wallet.import(appAdmin, identity);
-    console.log('msg: Successfully enrolled admin user ' + appAdmin + ' and imported it into the wallet');
+    console.log('Successfully enrolled admin user ' + appAdmin + ' and imported it into the wallet');
 
   } catch (error) {
     console.error(`Failed to enroll admin user ' + ${appAdmin} + : ${error}`);
