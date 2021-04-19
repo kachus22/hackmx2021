@@ -12,13 +12,13 @@ class VotableItem {
    *
    * @param ctx - the context of the transaction
    * @param votableId - the Id of the votableItem
-   * @param description - the description of the votableItem
+   * @param candidates - the candidates for this votableItem
    * @returns - registrar object
    */
-  constructor(ctx, votableId, description) {
+  constructor(ctx, votableId, candidates) {
 
     this.votableId = `VotableId:${votableId}`;
-    this.description = description;
+    this.candidates = candidates;
     this.count = 0;
     this.type = 'votableItem';
     if (this.__isContract) {
