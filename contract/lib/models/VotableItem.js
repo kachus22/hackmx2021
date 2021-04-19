@@ -7,12 +7,12 @@ class VotableItem {
    *
    * VotableItem
    *
-   * Constructor for a VotableItem object. These will eventually be placed on the 
-   * ballot. 
-   *  
+   * Constructor for a VotableItem object. These will eventually be placed on the
+   * ballot.
+   *
+   * @param ctx - the context of the transaction
    * @param votableId - the Id of the votableItem
    * @param description - the description of the votableItem
-   * @param voterId - the unique Id which corresponds to a registered voter
    * @returns - registrar object
    */
   constructor(ctx, votableId, description) {

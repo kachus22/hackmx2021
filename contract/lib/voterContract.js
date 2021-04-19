@@ -295,9 +295,10 @@ class MyContract extends Contract {
    * count of the political party that was picked by the voter and update
    * the world state.
    *
-   * @param electionId - the electionId of the election we want to vote in
-   * @param voterId - the voterId of the voter that wants to vote
-   * @param votableId - the Id of the candidate the voter has selected.
+   * @param {Context} ctx the transaction context
+   * @param args.picked -
+   * @param args.electionId -
+   * @param args.voterId -
    * @returns an array which has the winning briefs of the ballot.
    */
   async castVote(ctx, args) {

@@ -16,7 +16,6 @@ class Voter {
    * @returns - registrar object
    */
   constructor(ctx, voterId, registrarId, firstName, lastName) {
-
     if (this.validateVoter(voterId) && this.validateRegistrar(ctx, registrarId)) {
       this.voterId = voterId;
       this.registrarId = registrarId;
@@ -64,17 +63,17 @@ class Voter {
    *
    * check for valid registrarId, should be cross checked with government
    *
+   * @param ctx - the context of the transaction
    * @param voterId - an array of choices
    * @returns - yes if valid Voter, no if invalid
    */
   async validateRegistrar(ctx, registrarId) {
-
     const buffer = await ctx.stub.getState(registrarId);
 
     if (!!buffer && buffer.length > 0) {
       let voter = JSON.parse(buffer.toString());
       // TODO: Maybe add some validation about the registrar
-      return true;
+      return voter !== null;
     } else {
       console.log('This ID is not registered to vote.');
       return false;

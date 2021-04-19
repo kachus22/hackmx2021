@@ -8,6 +8,7 @@ class Registrar {
    * Constructor for a Voter object. Voter has a voterId and registrar that the
    * voter is .
    *
+   * @param registrarId - unique Id for the reigstrar
    * @param country - country where it's located
    * @param state - state where it's located
    * @param locality - locality where it's located
