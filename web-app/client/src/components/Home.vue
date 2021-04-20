@@ -17,23 +17,6 @@
     </form>
 
     <br>
-    <h3>Otherwise, fill out the form below to register!</h3>
-    <form v-on:submit="registerVoter">
-      <input type="text" v-model="registerData.voterId" placeholder="Enter Drivers License">
-      <br>
-      <input type="text" v-model="registerData.registrarId" placeholder="Enter Registrar ID">
-      <br>
-      <input type="text" v-model="registerData.firstName" placeholder="Enter first name">
-      <br>
-      <input type="text" v-model="registerData.lastName" placeholder="Enter last name">
-      <br>
-      <input type="submit" value="Register">
-    </form>
-    <br>
-    <span v-if="registerReponse">
-      <b>{{ registerReponse.data }}</b>
-    </span>
-    <br>
     <vue-instant-loading-spinner id='loader' ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
@@ -47,10 +30,6 @@ export default {
   data() {
     return {
       loginData: {},
-      registerData: {},
-      registerReponse: {
-        data: ""
-      },
       loginReponse: {
         data: ""
       }
@@ -60,21 +39,6 @@ export default {
     VueInstantLoadingSpinner
   },
   methods: {
-    async registerVoter() {
-
-      await this.runSpinner();
-      const apiResponse = await PostsService.registerVoter(
-        this.registerData.voterId,
-        this.registerData.registrarId,
-        this.registerData.firstName,
-        this.registerData.lastName
-      );
-
-      console.log(apiResponse);
-      this.registerReponse = apiResponse;
-      await this.hideSpinner();
-    },
-
     async validateVoter() {
       await this.runSpinner();
 

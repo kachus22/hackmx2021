@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import Admin from '@/components/Admin'
 import Home from '@/components/Home'
 import Voting from '@/components/Voting'
 import CastBallot from '@/components/CastBallot'
@@ -12,12 +13,19 @@ import GetCurrentStanding from '@/components/GetCurrentStanding'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
+    {
+      path: '/admin',
+      name: 'Admin',
+      component: Admin
+    },
     {
       path: '/',
       name: 'Home',
       component: Home
     },
+    
     {
       path: '/voting',
       name: 'Voting',

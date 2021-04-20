@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-        <p><router-link to="/">Home</router-link>&nbsp;          
+        <p><router-link to="/">Home</router-link>&nbsp;
         <!-- <router-link to="/castBallot">Cast Ballot</router-link>&nbsp; -->
         <router-link to="/QueryAll">QueryAll</router-link></p>
         <router-link to="/queryWithQueryString">Query by Type</router-link>&nbsp;
