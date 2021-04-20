@@ -1,12 +1,8 @@
-import Api from '@/services/api'
+import Api, { AuthApi } from '@/services/api'
 
 export default {
-  castBallot(electionId, voterId, picked) {
-    return Api().post('castBallot', {       
-      electionId: electionId,
-      voterId: voterId,
-      picked: picked
-    })
+  books() {
+    return AuthApi().get('ping');
   },
   queryAll() {
     return Api().get('queryAll')
@@ -17,6 +13,11 @@ export default {
   queryWithQueryString(selected) {
     return Api().post('queryWithQueryString', {
       selected: selected
+    }) 
+  },
+  queryByKey(key) {
+    return Api().post('queryByKey', {
+      key: key
     }) 
   },
   registerVoter(voterId, registrarId, firstName, lastName) {
@@ -33,12 +34,14 @@ export default {
       voterId: voterId
     }) 
   },
-  queryByKey(key) {
-    return Api().post('queryByKey', {
-      key: key
-    }) 
-  },
   getCurrentStanding() {
     return Api().get('getCurrentStanding')
-  }
+  },
+  castBallot(electionId, voterId, picked) {
+    return Api().post('castBallot', {       
+      electionId: electionId,
+      voterId: voterId,
+      picked: picked
+    })
+  },
 }
