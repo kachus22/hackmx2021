@@ -16,6 +16,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const { config } = require('./services/config');
+// Use this identity to query
+const appAdmin = config.appAdmin;
 
 /**
  * Controllers
@@ -25,13 +27,10 @@ const queryController = require('./controllers/query');
 const voterController = require('./controllers/voter');
 const votesController = require('./controllers/votes');
 
-//use this identity to query
-const appAdmin = config.appAdmin;
-
 /**
  * Auth Routes
  */
- app.get('/login', authController.login);
+ app.post('/login', authController.login);
 
 /**
  * Query Routes
@@ -53,7 +52,7 @@ app.get('/getCurrentStanding', votesController.getCurrentStanding);
 app.post('/castBallot', votesController.castBallot);
 
 app.get('/ping', authenticateJWT, (req, res) => {
-  res.json(pong);
+  res.json('pong');
 });
 
 app.listen(port, () => {

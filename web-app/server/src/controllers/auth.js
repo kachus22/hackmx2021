@@ -10,10 +10,10 @@ module.exports = {
     console.log(password, pw)
     if (password == pw) {
       // Generate an access token
-      const accessToken = jwt.sign({ role: 'admin' }, config.jwtSecret,  { expiresIn: '24h' });
-      res.json({ accessToken });
+      const token = jwt.sign({ role: 'admin' }, config.jwtSecret,  { expiresIn: '24h' });
+      res.json({ token });
     } else {
-      res.send('Username or password incorrect.');
+      res.json({ error: 'Username or password incorrect.' });
     }
   }
 }
