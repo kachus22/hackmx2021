@@ -1,9 +1,16 @@
 'use strict';
 
+const appzip = require('appmetrics-zipkin')({
+  host: 'localhost',
+  port: 9411,
+  serviceName:'webapp',
+  sampleRate: 1.0
+});
+
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
 
 const app = express();
 // Enable parsing of http request body
@@ -11,17 +18,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-
 /**
  * Logging
  */
 const log4js = require('log4js');
-const logger = log4js.getLogger();
 log4js.configure({
-  appenders: { 'file': { type: 'file', filename: 'logs/file.log' } },
-  categories: { default: { appenders: ['file'], level: 'debug' } }
- });
-logger.level = 'debug';
+  appenders: { 
+    'file': { type: 'file', filename: 'logs/file.log' },
+    'out': { type: 'stdout' }
+  },
+  categories: { default: { appenders: ['file', 'out'], level: 'debug' } }
+});
+const logger = log4js.getLogger();
 app.use(log4js.connectLogger(logger, { level: process.env.LOG_LEVEL || 'debug' }));
 
 /**
