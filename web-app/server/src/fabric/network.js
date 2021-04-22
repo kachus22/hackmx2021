@@ -195,11 +195,6 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     const adminIdentity = gateway.getCurrentIdentity();
     // console.log(`AdminIdentity: + ${adminIdentity}`);
 
-    console.log()
-    console.log()
-    console.log()
-    console.log('cacacaca')
-
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: '', enrollmentID: voterId, role: 'client' }, adminIdentity);
 
@@ -211,7 +206,7 @@ exports.registerVoter = async function (voterId, registrarId, firstName, lastNam
     return response;
 
   } catch (error) {
-    console.error(`Failed to register user + ${voterId} + : ${error}`);
+    // console.error(`Failed to register user + ${voterId} + : ${error}`);
     let response = { error: error.message };
     return response;
   }
