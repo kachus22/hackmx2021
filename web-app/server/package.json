@@ -9,6 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "appmetrics-zipkin": "^1.1.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "eslint": "^6.0.1",
@@ -17,7 +18,7 @@
     "fabric-client": "^1.4.10",
     "fabric-network": "~1.4.2",
     "jsonwebtoken": "^8.5.1",
-    "morgan": "^1.9.1",
+    "log4js": "^6.3.0",
     "nodemon": "^1.19.1"
   }
 }
