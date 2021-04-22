@@ -2,7 +2,7 @@
 const util = require('util');
 
 const network = require('../fabric/network.js');
-const { config } = require('./services/config');
+const { config } = require('../services/config');
 
 // Use this identity to query
 const appAdmin = config.appAdmin;
