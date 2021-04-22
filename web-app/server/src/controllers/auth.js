@@ -13,7 +13,7 @@ module.exports = {
       const token = jwt.sign({ role: 'admin' }, config.jwtSecret,  { expiresIn: '24h' });
       res.json({ token });
     } else {
-      res.json({ error: 'Username or password incorrect.' });
+      res.json({ error: 'Password incorrect.' });
     }
   }
 }
