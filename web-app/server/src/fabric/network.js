@@ -24,7 +24,7 @@ const ccp = JSON.parse(ccpJSON);
 const util = require('util');
 
 exports.connectToNetwork = async function (userName) {
-  
+  // Create a new gateway for connecting to our peer node.
   const gateway = new Gateway();
 
   try {
