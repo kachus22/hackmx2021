@@ -33,6 +33,6 @@ Estos representan la arquitectura propuesta por nuestro equipo. Algunas de las p
 
 ## Arquitectura
 ### Panorama General
-![Alt text](docs/diagrams/architecture_1.png?raw=true)
+![Alt text](docs/diagrams/architecture-1.png?raw=true)
 ### Blockchain
-![Alt text](docs/diagrams/architecture_2.png?raw=true)
+![Alt text](docs/diagrams/architecture-2.png?raw=true)
