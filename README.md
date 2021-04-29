@@ -1,4 +1,6 @@
-# Reto IBM | Sistema de elecciones en México - hackmx2021
+# Reto IBM
+
+# Sistema de elecciones en México - hackmx2021
 
 # Suposiciones, puntos clave, objetivos y lo que esta fuera
 
@@ -36,3 +38,7 @@ Estos representan la arquitectura propuesta por nuestro equipo. Algunas de las p
 ![Alt text](docs/diagrams/architecture-1.png?raw=true)
 ### Blockchain
 ![Alt text](docs/diagrams/architecture-2.png?raw=true)
+
+# Presentación
+
+[Google slides](https://docs.google.com/presentation/d/1RfXNyohv6h3aZOM4FS82TyKQaKpcWrV7qVeONObNaoo/edit?usp=sharing)
