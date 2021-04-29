@@ -4,20 +4,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
-const util = require('util');
 const port = process.env.PORT || 8081;
 
-const { authenticateJWT } = require('./auth');
-let network = require('./fabric/network.js');
+const { authenticateJWT } = require('./middleware/auth');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
-
-const { config } = require('./services/config');
-// Use this identity to query
-const appAdmin = config.appAdmin;
 
 /**
  * Controllers
@@ -54,6 +49,12 @@ app.post('/castBallot', votesController.castBallot);
 app.get('/ping', authenticateJWT, (req, res) => {
   res.json('pong');
 });
+
+/**
+ * Error handler
+ */
+app.use(errorHandler.catchNotFound);
+app.use(errorHandler.handleError);
 
 app.listen(port, () => {
   console.log(`Service started on port ${port}`);
