@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const JWT = require('jsonwebtoken');
 const { config } = require('../services/config');
 
 module.exports.authenticateJWT = (req, res, next) => {
@@ -7,7 +7,7 @@ module.exports.authenticateJWT = (req, res, next) => {
   if (authHeader) {
     const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, config.jwtSecret, (err, user) => {
+    JWT.verify(token, config.jwtSecret, (err, user) => {
       if (err) {
         return res.sendStatus(403);
       }
