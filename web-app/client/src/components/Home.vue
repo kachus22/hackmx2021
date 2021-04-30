@@ -75,8 +75,8 @@
     background-size: contain;
     position: relative;
     /* testing */
-    transform: scale(0.75);
-    margin-left: -50px; 
+    transform: scale(0.65);
+    margin-left: -150px; 
   }
   .INE .INE-photo {
     height: 230px;
