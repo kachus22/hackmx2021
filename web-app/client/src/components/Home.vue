@@ -2,33 +2,72 @@
   <div class="posts">
     <h1>Elecciones IBM 2021</h1>
     <br>
-    <h3>Ingrese la clave de elector</h3>
+    <h3 v-if="showInput">Ingrese la clave de elector</h3>
     <!--span><b>{{ response }}</b></span><br /-->
-    <form v-on:submit="validateVoter">
+    <form v-on:submit="validateVoter" v-if="showInput">
       <!-- <input type="submit" value="Login"> -->
       <div style="width: 50%; margin: 0 auto;">
         <v-text-field
             v-model="loginData.voterId"
             label="CLAVE DE ELECTOR"
-            placeholder="Placeholder"
+            placeholder="CLAVE DE ELECTOR"
             solo
       ></v-text-field>
       <v-btn class="white--text" block color="rgb(241 35 164)" @click="validateVoter">
         Buscar
       </v-btn>
       </div>
-      <!-- <span v-if="loginReponse">
-        <b>{{ loginReponse.data }}</b>
-      </span> -->
     </form>
 
-    <br>
+    <v-alert
+      dense
+      text
+      type="success"
+      style="margin-top:15px;"
+      v-if="showIne"
+    >
+      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> si puede votar aquí
+    </v-alert>
 
-    <div class="INE">
+    <div v-if="showError == 'casilla'">
+      <v-alert
+        dense
+        text
+        type="warning"
+        style="margin-top:15px;"
+      >
+        La persona con la clave de elector <strong>GMVLMR80070501M100</strong> no puede votar aquí
+        <br>
+        A la persona le corresponde en:
+      </v-alert>
+      <img src="../assets/location.png" alt="">
+    </div>
+
+    <v-alert
+      dense
+      text
+      type="error"
+      style="margin-top:15px;"
+      v-if="showError == 'existe'"
+    >
+      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> no existe
+    </v-alert>
+
+    <v-alert
+      dense
+      text
+      type="error"
+      style="margin-top:15px;"
+      v-if="showError == 'voto'"
+    >
+      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> ya realizó su voto
+    </v-alert>
+
+    <div class="INE" v-if="showIne">
       <img class="INE-photo" src="../assets/person.png" alt="INE photo">
       <img class="INE-photo2" src="../assets/person.png" alt="INE photo2">
       <div class="INE-sex">
-        <p>SEXO: M</p>
+        <p>SEXO: F</p>
       </div>
       <div class="INE-name">
         <p><b>NOMBRE</b></p>
@@ -62,6 +101,10 @@
         </div>
       </div>
     </div>
+
+    <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned">
+      Siguiente persona
+    </v-btn>
     <vue-instant-loading-spinner id='loader' ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
@@ -185,42 +228,90 @@ export default {
       loginData: {},
       loginReponse: {
         data: ""
-      }
+      },
+      showInput: true,
+      showIne: false,
+      showError: '',
+      voterAssigned: false
     };
   },
   components: {
     VueInstantLoadingSpinner
   },
   methods: {
+    resetForm() {
+      this.loginData.voterId = '';
+      this.showIne = false;
+      this.showError = '';
+      this.showInput = true;
+      this.voterAssigned = false;
+    },
     async validateVoter() {
       await this.runSpinner();
 
-      if (!this.loginData.voterId) {
-        console.log("!thislogin");
-        let response = 'Please enter a VoterId';
-        this.loginReponse.data = response;
-        await this.hideSpinner();
+      if(this.loginData.voterId == 'GMVLMR80070501M100') {
+        setTimeout(async () => {
+          this.loginData.voterId = '';
+          // this.$router.push('voting')
+          this.showIne = true;
+          this.showError = '';
+          this.showInput = false;
+          await this.hideSpinner();
+        }, 1200);
+      } else if(this.loginData.voterId == 'EAERTSC90070501K222') {
+        setTimeout(async () => {
+          this.loginData.voterId = '';
+          this.showIne = false;
+          this.showError = 'casilla';
+          this.showInput = false;
+          this.voterAssigned = true;
+          await this.hideSpinner();
+        }, 1200);
+      } else if(this.loginData.voterId == 'FFGGART60163850H123') {
+        setTimeout(async () => {
+          this.loginData.voterId = '';
+          this.showIne = false;
+          this.showError = 'voto';
+          this.showInput = false;
+          this.voterAssigned = true;
+          await this.hideSpinner();
+        }, 1200);
       } else {
-        const apiResponse = await PostsService.validateVoter(
-          this.loginData.voterId
-        );
-        console.log("apiResponse");
-        console.log(apiResponse.data);
-
-        if (apiResponse.data.error) {
-          // console.log(apiResponse);
-          console.log(apiResponse.data.error);
-          this.loginReponse = apiResponse.data.error;
-        } else {
-          // TODO: Validate that Registrar Id matches the one that we are in.
-          this.$router.push("castBallot");
-        }
-
-        console.log(apiResponse);
-        this.loginReponse = apiResponse;
-        // this.$router.push('castBallot')
-        await this.hideSpinner();
+        setTimeout(async () => {
+          this.loginData.voterId = '';
+          this.showIne = false;
+          this.showError = 'existe';
+          this.showInput = false;
+          this.voterAssigned = true;
+          await this.hideSpinner();
+        }, 1200);
       }
+      // if (!this.loginData.voterId) {
+      //   console.log("!thislogin");
+      //   let response = 'Please enter a VoterId';
+      //   this.loginReponse.data = response;
+      //   await this.hideSpinner();
+      // } else {
+      //   const apiResponse = await PostsService.validateVoter(
+      //     this.loginData.voterId
+      //   );
+      //   console.log("apiResponse");
+      //   console.log(apiResponse.data);
+
+      //   if (apiResponse.data.error) {
+      //     // console.log(apiResponse);
+      //     console.log(apiResponse.data.error);
+      //     this.loginReponse = apiResponse.data.error;
+      //   } else {
+      //     // TODO: Validate that Registrar Id matches the one that we are in.
+      //     this.$router.push("castBallot");
+      //   }
+
+      //   console.log(apiResponse);
+      //   this.loginReponse = apiResponse;
+      //   this.$router.push('voting')
+      //   await this.hideSpinner();
+      // }
     },
     async runSpinner() {
       this.$refs.Spinner.show();
