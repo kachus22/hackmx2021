@@ -4,6 +4,12 @@
 
     </header>
 
+    <!-- <router-link to="/castBallot">Cast Ballot</router-link>&nbsp; -->
+        <!-- <router-link to="/QueryAll">QueryAll</router-link>
+        <router-link to="/queryWithQueryString">Query by Type</router-link>&nbsp;
+        <router-link to="/queryByKey">Query by Key</router-link>&nbsp;
+        <router-link to="/results">Get Poll Standings</router-link>&nbsp; -->
+
     <v-main>
       <router-view/>
     </v-main>

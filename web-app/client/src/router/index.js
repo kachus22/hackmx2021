@@ -52,8 +52,8 @@ export default new Router({
       component: QueryByKey
     },
     {
-      path: '/getCurrentStanding',
-      name: 'GetCurrentStanding',
+      path: '/results',
+      name: 'Results',
       component: GetCurrentStanding
     }
   ]

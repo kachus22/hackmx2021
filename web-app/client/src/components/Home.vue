@@ -19,49 +19,64 @@
       </div>
     </form>
 
-    <v-alert
-      dense
-      text
-      type="success"
-      style="margin-top:15px;"
-      v-if="showIne"
-    >
-      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> si puede votar aquí
-    </v-alert>
+    <div v-if="showIne" style="margin-bottom: 15px;">
+      <v-alert
+        dense
+        text
+        type="success"
+        style="margin-top:15px;"
+      >
+        La persona con la clave de elector <strong>GMVLMR80070501M100</strong> si puede votar aquí
+      </v-alert>
+      <v-btn class="white--text" block color="rgb(241 35 164)" @click="assignUrn" v-if="showIne && !voterAssigned" >
+        Asignar urna
+      </v-btn>
+    </div>
 
-    <div v-if="showError == 'casilla'">
+    <div v-if="showInfo == 'casilla'">
       <v-alert
         dense
         text
         type="warning"
         style="margin-top:15px;"
       >
-        La persona con la clave de elector <strong>GMVLMR80070501M100</strong> no puede votar aquí
+        La persona con la clave de elector <strong>{{loginData.voterId}}</strong> no puede votar aquí
         <br>
         A la persona le corresponde en:
       </v-alert>
+      <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned" style="margin-top: 15px; margin-bottom: 15px;">
+        Siguiente persona
+      </v-btn>
       <img src="../assets/location.png" alt="">
     </div>
 
-    <v-alert
+    <div v-if="showInfo == 'existe'">
+      <v-alert
       dense
       text
       type="error"
       style="margin-top:15px;"
-      v-if="showError == 'existe'"
     >
-      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> no existe
+      La persona con la clave de elector <strong>{{loginData.voterId}}</strong> no existe
     </v-alert>
+    <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned" style="margin-top: 15px; margin-bottom: 15px;">
+        Siguiente persona
+      </v-btn>
+    </div>
 
-    <v-alert
+    <div v-if="showInfo == 'voto'">
+      <v-alert
       dense
       text
       type="error"
       style="margin-top:15px;"
-      v-if="showError == 'voto'"
     >
-      La persona con la clave de elector <strong>GMVLMR80070501M100</strong> ya realizó su voto
+      La persona con la clave de elector <strong>{{loginData.voterId}}</strong> ya realizó su voto
     </v-alert>
+    <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned" style="margin-top: 15px; margin-bottom: 15px;">
+        Siguiente persona
+      </v-btn>
+    </div>
 
     <div class="INE" v-if="showIne">
       <img class="INE-photo" src="../assets/person.png" alt="INE photo">
@@ -102,9 +117,20 @@
       </div>
     </div>
 
-    <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned">
-      Siguiente persona
-    </v-btn>
+    <div v-if="showInfo == 'urna'">
+      <v-alert
+      dense
+      text
+      type="info"
+      style="margin-top:15px;"
+    >
+      La persona con la clave de elector <strong>{{loginData.voterId}}</strong> puede realizar su voto <br>
+      en la <strong>urna #2</strong>
+    </v-alert>
+    <v-btn class="white--text" block color="rgb(241 35 164)" @click="resetForm" v-if="!showInput && voterAssigned" style="margin-top: 15px; margin-bottom: 15px;">
+        Siguiente persona
+      </v-btn>
+    </div>
     <vue-instant-loading-spinner id='loader' ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
@@ -118,8 +144,8 @@
     background-size: contain;
     position: relative;
     /* testing */
-    transform: scale(0.65);
-    margin-left: -150px; 
+    /* transform: scale(0.65); */
+    /* margin-left: -150px;  */
   }
   .INE .INE-photo {
     height: 230px;
@@ -231,7 +257,7 @@ export default {
       },
       showInput: true,
       showIne: false,
-      showError: '',
+      showInfo: '',
       voterAssigned: false
     };
   },
@@ -242,45 +268,51 @@ export default {
     resetForm() {
       this.loginData.voterId = '';
       this.showIne = false;
-      this.showError = '';
+      this.showInfo = '';
       this.showInput = true;
       this.voterAssigned = false;
+    },
+    async assignUrn() {
+      await this.runSpinner();
+      setTimeout(async () => {
+          this.showIne = false;
+          this.showInfo = 'urna';
+          this.showInput = false;
+          this.voterAssigned = true;
+          await this.hideSpinner();
+        }, 1200);
     },
     async validateVoter() {
       await this.runSpinner();
 
       if(this.loginData.voterId == 'GMVLMR80070501M100') {
         setTimeout(async () => {
-          this.loginData.voterId = '';
           // this.$router.push('voting')
           this.showIne = true;
-          this.showError = '';
+          this.showInfo = '';
           this.showInput = false;
           await this.hideSpinner();
         }, 1200);
       } else if(this.loginData.voterId == 'EAERTSC90070501K222') {
         setTimeout(async () => {
-          this.loginData.voterId = '';
           this.showIne = false;
-          this.showError = 'casilla';
+          this.showInfo = 'casilla';
           this.showInput = false;
           this.voterAssigned = true;
           await this.hideSpinner();
         }, 1200);
       } else if(this.loginData.voterId == 'FFGGART60163850H123') {
         setTimeout(async () => {
-          this.loginData.voterId = '';
           this.showIne = false;
-          this.showError = 'voto';
+          this.showInfo = 'voto';
           this.showInput = false;
           this.voterAssigned = true;
           await this.hideSpinner();
         }, 1200);
       } else {
         setTimeout(async () => {
-          this.loginData.voterId = '';
           this.showIne = false;
-          this.showError = 'existe';
+          this.showInfo = 'existe';
           this.showInput = false;
           this.voterAssigned = true;
           await this.hideSpinner();

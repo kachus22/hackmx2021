@@ -3,7 +3,10 @@
     <div class="ballot-options">
       <ballot-option v-for="(o, i) in options" v-bind:key="i" :votableItem="o" :selected.sync="selected" />
     </div>
-    <button v-if="selected" @click="onClick">Votar</button>  
+
+    <v-btn class="white--text" color="rgb(241 35 164)"  v-if="selected" @click="onClick" style="font-size: 40px; margin-top: 15px; margin-bottom: 15px; padding: 50px;">
+      Votar
+    </v-btn>
   </div>
 </template>
 

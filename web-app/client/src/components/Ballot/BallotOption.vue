@@ -2,10 +2,10 @@
   <div class="ballot-single-option" v-bind:class="{ selected: selected.votableId == votableItem.votableId }" 
     @click="onClick(votableItem)">
     <div class="image">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Morena_logo_%28alt%29.svg/1200px-Morena_logo_%28alt%29.svg.png" 
+      <img src="../../assets/candidatura.png" 
         v-bind:alt="`${votableItem.party} Logo`">
     </div>
-    <div class="info">
+    <div class="info-partido">
       <h2>{{votableItem.party}}</h2>
       <h4 v-for="(c, i) in votableItem.candidates" v-bind:key="i">{{c}}</h4>
     </div>
@@ -25,7 +25,7 @@
   }
 
   .ballot-single-option.selected {
-     background-color: royalblue;
+     background-color: wheat;
   }
 
   .ballot-single-option .image img {
@@ -34,24 +34,24 @@
     margin: 0px 20px;
   }
 
-  .ballot-single-option .info {
+  .ballot-single-option .info-partido {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
 
-  .ballot-single-option .info h2 {
+  .ballot-single-option .info-partido h2 {
     margin-top: 0px;
     margin-bottom: 15px;
     border-bottom: 1px solid rgb(185, 185, 185);
   }
 
-  .ballot-single-option .info h4 {
+  .ballot-single-option .info-partido h4 {
     margin-block-start: 0.1em;
     margin-block-end: 0.1em;
   }
 
-  .ballot-single-option .info h4:last-child {
+  .ballot-single-option .info-partido h4:last-child {
     margin-top: 15px;
   }
 </style>
