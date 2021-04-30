@@ -1,19 +1,25 @@
 <template>
   <div class="posts">
     <h1>Elecciones IBM 2021</h1>
-    <h3>Ingrese la clave de elevtor</h3>
+    <br>
+    <h3>Ingrese la clave de elector</h3>
     <!--span><b>{{ response }}</b></span><br /-->
     <form v-on:submit="validateVoter">
-      <input type="text" v-model="loginData.voterId" placeholder="Enter VoterId">
-      <br>
-
-      <input type="submit" value="Login">
-      <br>
-      <br>
-      <span v-if="loginReponse">
+      <!-- <input type="submit" value="Login"> -->
+      <div style="width: 50%; margin: 0 auto;">
+        <v-text-field
+            v-model="loginData.voterId"
+            label="CLAVE DE ELECTOR"
+            placeholder="Placeholder"
+            solo
+      ></v-text-field>
+      <v-btn class="white--text" block color="rgb(241 35 164)" @click="validateVoter">
+        Buscar
+      </v-btn>
+      </div>
+      <!-- <span v-if="loginReponse">
         <b>{{ loginReponse.data }}</b>
-      </span>
-      <br>
+      </span> -->
     </form>
 
     <br>
@@ -68,6 +74,9 @@
     background-image: url("../assets/INE.png");
     background-size: contain;
     position: relative;
+    /* testing */
+    transform: scale(0.75);
+    margin-left: -50px; 
   }
   .INE .INE-photo {
     height: 230px;
@@ -112,7 +121,7 @@
 
   .INE .INE-address {
     position: absolute;
-    bottom: 175px;
+    bottom: 165px;
     left: 200px;
   }
 
@@ -126,7 +135,7 @@
 
   .INE .INE-codes {
     position: absolute;
-    bottom: 100px;
+    bottom: 90px;
     left: 200px;
   }
 
@@ -140,7 +149,7 @@
 
   .INE .INE-extra {
     position: absolute;
-    bottom: 45px;
+    bottom: 35px;
     left: 200px;
     display: flex;
   }
